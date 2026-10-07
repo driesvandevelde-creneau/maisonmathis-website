@@ -35,5 +35,6 @@ BEFORE LAUNCH
 - Add a privacy policy and cookie notice (Google Analytics is installed).
 
 FILES FOR NETLIFY
-- _headers: tells browsers to keep images, fonts and scripts so repeat visits are fast
-  (images 7 days, css/js 1 day, fonts 1 year). If you replace an image, give the new file a new name.
+- _headers: tells browsers to keep fonts, images, styles and scripts so repeat visits are fast.
+  Styles and scripts get a new file name whenever they change, so visitors always receive the latest version.
+  Page files (.html) are always re-checked. Images are kept for 7 days: if you replace an image, give the new file a new name.

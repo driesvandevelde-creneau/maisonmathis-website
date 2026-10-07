@@ -841,6 +841,133 @@
     * { transition: none !important; animation: none !important; }
   }
 
+/* ==================================================================
+   POLISH LAYER - spacing, type, buttons, cards, motion, photo finish.
+   Brand rules kept: square corners, no shadows, brand colours only.
+   ================================================================== */
+html { scroll-behavior: smooth; }
+body { text-rendering: optimizeLegibility; font-kerning: normal; -webkit-font-smoothing: antialiased; }
+p { text-wrap: pretty; }
+::selection { background: var(--forest); color: var(--cream); }
+:focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; }
+.on-dark :focus-visible, .franchise :focus-visible, .hs-festive :focus-visible, .ww-hero :focus-visible, .ww-take :focus-visible, .ww-wine :focus-visible, .fr-forest :focus-visible { outline-color: var(--cream); }
+
+/* ---------- header ---------- */
+header.site { transition: border-color .35s ease; }
+header.site.is-stuck { border-bottom-color: var(--forest); }
+.bar { padding-top: 14px; padding-bottom: 14px; }
+.bar .mark img { height: 32px; }
+nav.main a { padding: 6px 0; transition: border-color .25s ease, color .25s ease; }
+nav.main a:hover { color: var(--forest); }
+
+/* ---------- buttons ---------- */
+.btn { min-height: 46px; padding: 12px 24px; transition: background-color .25s ease, color .25s ease, border-color .25s ease, transform .25s ease; }
+.btn-primary { border-color: var(--forest); }
+.btn-primary:hover { background: transparent; color: var(--forest); }
+.btn-secondary:hover { background: var(--forest); color: var(--cream); }
+.btn:active { transform: translateY(1px); }
+.btn-tertiary { min-height: 0; padding: 6px 0; transition: color .25s ease, border-color .25s ease; }
+.btn-tertiary::after { content: ""; flex: none; width: 6px; height: 6px; margin-left: 4px; border-top: 1.5px solid currentColor; border-right: 1.5px solid currentColor; transform: rotate(45deg); transition: transform .25s ease; }
+.btn-tertiary:hover::after { transform: translateX(3px) rotate(45deg); }
+.on-dark .btn-primary, .franchise .btn-primary { background: var(--cream); color: var(--forest); border-color: var(--cream); }
+.on-dark .btn-primary:hover, .franchise .btn-primary:hover { background: transparent; color: var(--cream); }
+.hs-festive .btn { border-color: var(--cream); }
+.hs-festive .btn:hover { background: transparent; color: var(--cream); }
+.ww-wine .btn-primary { border-color: var(--cream); }
+.ww-wine .btn-primary:hover { background: transparent; color: var(--cream); }
+.mmenu .btn, .ww-cta .btn-primary, .hero .btn-primary { border-color: var(--forest); }
+
+/* ---------- section rhythm ---------- */
+.band { padding: clamp(60px, 8vw, 112px) 0; }
+.band > .wrap > .sec-head { position: relative; padding-top: 32px; margin-bottom: clamp(32px, 4vw, 54px); }
+.band > .wrap > .sec-head::before { content: ""; position: absolute; left: 0; top: 0; width: 64px; height: 8px; background: var(--stripe); }
+.sec-head h2 { font-size: clamp(34px, 4.2vw, 58px); letter-spacing: .004em; }
+.sec-head .sub { font-size: 16px; line-height: 1.6; }
+#whatson { background: var(--paper-2); }
+#whatson .wk-day:has(.wk-today:not([hidden])) { background: var(--cream); }
+
+/* ---------- hero ---------- */
+.hero h1 { font-size: clamp(46px, 6.1vw, 92px); }
+.hero .standfirst { font-size: 18px; line-height: 1.6; }
+.hero-media { overflow: hidden; }
+.hero-img { animation: heroIn 2.4s cubic-bezier(.2, .6, .2, 1) both; }
+@keyframes heroIn { from { transform: scale(1.07); } to { transform: scale(1); } }
+
+/* ---------- book a table ---------- */
+.picker { padding: clamp(40px, 5vw, 64px) 0 clamp(44px, 5.5vw, 72px); }
+.picker-head { margin-bottom: 26px; }
+.picker-head h2 { font-size: clamp(30px, 3.4vw, 42px); }
+.venue { padding: 30px 26px 28px; gap: 14px; transition: background-color .3s ease; }
+.venue:hover { background: var(--white); }
+.venue h3 { font-size: 25px; }
+.venue .where { font-size: 14px; }
+.venue .hours { font-size: 14.5px; }
+.venue .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; align-items: center; padding-top: 10px; }
+.venue .acts .btn-primary { grid-column: 1 / -1; }
+.venue .acts .btn-secondary { grid-column: 1; padding-left: 10px; padding-right: 10px; }
+.venue .acts .btn-tertiary { grid-column: 2; justify-self: start; }
+.status .dot { width: 8px; height: 8px; background: var(--ink-mute); }
+.status.open .dot { background: var(--forest); outline: 3px solid rgba(33, 51, 31, .16); animation: livePulse 2.6s ease-in-out infinite; }
+@keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* ---------- our houses (cards) ---------- */
+.locs { gap: clamp(20px, 2.4vw, 32px); }
+.loc { transition: border-color .35s ease; }
+.loc:hover { border-color: var(--forest); }
+.loc .shot { outline: 1px solid rgba(35, 31, 32, .07); outline-offset: -1px; }
+.loc .shot img { transition: transform 1s cubic-bezier(.2, .7, .2, 1); }
+.loc:hover .shot img { transform: scale(1.045); }
+.loc-body { padding: 24px 24px 26px; gap: 11px; }
+.loc h3 { font-size: 25px; }
+.loc .meta { font-size: 14px; line-height: 1.5; }
+.badge { padding: 6px 10px; }
+
+/* ---------- what's on ---------- */
+.filter, .mn-loc { min-height: 42px; padding: 10px 20px; transition: background-color .25s ease, color .25s ease, border-color .25s ease; }
+.filter:hover, .mn-loc:hover { border-color: var(--forest); color: var(--forest); }
+.filter[aria-pressed="true"]:hover, .mn-loc[aria-pressed="true"]:hover { color: var(--cream); }
+.wk-day { padding: 22px 16px 24px; }
+.wk-dayhead h3 { font-size: 24px; }
+.wk-item h4 { font-size: 18px; }
+.wk-time { font-size: 10.5px; }
+
+/* ---------- photo strip + menus ---------- */
+.fr-strip img { transition: filter .5s ease; }
+.fr-strip img:hover { filter: saturate(1.08) contrast(1.03); }
+.mn-panel .menu-aside h2 { font-size: clamp(30px, 3.4vw, 44px); }
+.mn-book { padding: 24px 24px 20px; background: var(--paper-2); border: 1px solid var(--rule); }
+.mn-pg { transition: border-color .25s ease; }
+.mn-pg:hover { border-color: var(--forest); }
+
+/* ---------- house line + forms + footer ---------- */
+.field input, .field select { padding: 12px 2px; transition: border-color .25s ease, background-color .25s ease; }
+.field input:focus, .field select:focus { outline: none; border-bottom-color: var(--cream); background: rgba(239, 235, 226, .07); }
+.form { padding: 34px 32px 36px; background: rgba(239, 235, 226, .05); }
+.form .btn { min-height: 48px; }
+footer.site { position: relative; padding: 76px 0 30px; }
+footer.site::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 10px; background: var(--stripe); }
+footer h4 { font-size: 15px; letter-spacing: .02em; }
+footer .col a { transition: border-color .25s ease, color .25s ease; }
+footer .col a:hover { color: var(--forest); }
+
+/* ---------- restaurant pages, franchise, winter ---------- */
+.hs-visit-grid > div { border-top: 1px solid var(--forest); padding-top: 18px; }
+.hs-photo { outline: 1px solid rgba(35, 31, 32, .07); outline-offset: -1px; }
+.fr-split h2, .fr-interior h2 { font-size: clamp(32px, 4.4vw, 56px); }
+.fr-photos img, .ww-photo { outline: 1px solid rgba(35, 31, 32, .07); outline-offset: -1px; }
+.ww-event, .fr-band { transition: none; }
+
+/* ---------- scroll reveal ---------- */
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity .8s ease, transform .8s cubic-bezier(.2, .7, .2, 1); transition-delay: var(--d, 0s); }
+.reveal.in { opacity: 1; transform: none; }
+@media (max-width: 620px) { .reveal { transform: translateY(10px); } .band > .wrap > .sec-head { padding-top: 26px; } .venue { padding: 26px 22px 24px; } }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .hero-img, .status.open .dot { animation: none; }
+  *, *::before, *::after { transition-duration: .01ms !important; }
+}
+
 /* ---------- restaurant pages ---------- */
 .hs-status { margin: -4px 0 4px; font-size: 14px; }
 .hs-visit { background: var(--paper-2); border-bottom: 1px solid var(--rule); }

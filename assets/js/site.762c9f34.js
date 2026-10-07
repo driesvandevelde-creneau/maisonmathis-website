@@ -638,4 +638,26 @@
     });
     window.matchMedia("(min-width: 861px)").addEventListener("change", function (e) { if (e.matches) setMobileMenu(false); });
   }
+
+  /* ---- polish: header line once the page scrolls, gentle reveal of sections ---- */
+  (function () {
+    var hd = document.querySelector("header.site");
+    if (hd) {
+      var onScroll = function () { hd.classList.toggle("is-stuck", window.scrollY > 8); };
+      window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+    }
+    if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var targets = document.querySelectorAll(
+      ".band > .wrap > .sec-head, .picker-head, .venues, .loc, .week, .wk-cta, .fr-strip, .menu-wrap, .mn-book, .house-line, " +
+      ".franchise .inner, .fr-split, .fr-interior, .ww-glance-grid, .ww-grid, .hs-visit-grid, .hs-photos, .hs-festive .wrap, .ww-cta .wrap");
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+    }, { threshold: 0.06 });
+    targets.forEach(function (el, i) {
+      if (el.closest("[hidden]")) { el.classList.add("in"); return; }
+      var sib = el.parentElement ? Array.prototype.indexOf.call(el.parentElement.children, el) : 0;
+      if (el.classList.contains("loc")) el.style.setProperty("--d", (sib % 3) * 0.09 + "s");
+      el.classList.add("reveal"); io.observe(el);
+    });
+  })();
 })();
