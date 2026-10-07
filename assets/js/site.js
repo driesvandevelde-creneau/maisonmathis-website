@@ -587,24 +587,26 @@
   }
 
   /* ---- franchise enquiry: sent to the site's form handler (Netlify Forms), with an email fallback ---- */
-  var franchiseForm = document.getElementById("franchiseForm");
-  if (franchiseForm) {
+  document.querySelectorAll("form.js-franchise-form").forEach(function (franchiseForm) {
     var TO = "info@creneauhospitality.com";
     franchiseForm.addEventListener("submit", function (e) {
       e.preventDefault();
       var btn = franchiseForm.querySelector('button[type="submit"]');
-      var note = document.getElementById("franchiseNote");
+      var note = franchiseForm.querySelector(".fineprint");
       var fd = new FormData(franchiseForm);
       var val = function (k) { return String(fd.get(k) || "").trim(); };
       btn.disabled = true; note.textContent = "Sending...";
       fetch("/", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams(fd).toString()
+        body: new URLSearchParams(fd).toString(),
+        redirect: "manual"
       }).then(function (r) {
-        if (!r.ok) throw new Error("status " + r.status);
+        /* success is a normal 200, or Netlify redirecting to the thank-you page */
+        if (!(r.ok || r.type === "opaqueredirect")) { var err = new Error("status " + r.status); err.status = r.status; throw err; }
         window.location.href = franchiseForm.getAttribute("action") || "/franchise/thank-you/";
-      }).catch(function () {
+      }).catch(function (err) {
+        console.error("Franchise form could not be sent:", err);
         btn.disabled = false;
         var body = [
           "Franchise pack request from the Maison Mathis website", "",
@@ -613,12 +615,12 @@
           "Capital available: " + val("capital"), "Target opening: " + val("opening")
         ].join("\r\n");
         var href = "mailto:" + TO + "?subject=" + encodeURIComponent("Franchise pack request - " + val("name") + ", " + val("market")) + "&body=" + encodeURIComponent(body);
-        note.textContent = "Sorry, that did not send. Please try again, or ";
+        note.textContent = "Sorry, that did not send" + (err && err.status ? " (error " + err.status + ")" : "") + ". Please try again, or ";
         var fb = document.createElement("a"); fb.href = href; fb.textContent = "email us directly";
         note.appendChild(fb); note.appendChild(document.createTextNode("."));
       });
     });
-  }
+  });
 
   /* ---- mobile menu ---- */
   var burger = document.querySelector(".burger"), mobileMenu = document.getElementById("mobileMenu"), mmBack = document.querySelector(".mm-backdrop");

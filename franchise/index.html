@@ -139,8 +139,9 @@
           </p>
         </div>
 
-        <form class="form" id="franchiseForm" name="franchise-enquiry" method="POST" action="/franchise/thank-you/" data-netlify="true" netlify-honeypot="bot-field">
+        <form class="form js-franchise-form" id="franchiseForm" name="franchise-enquiry" method="POST" action="/franchise/thank-you/" data-netlify="true" netlify-honeypot="bot-field">
           <input type="hidden" name="form-name" value="franchise-enquiry">
+          <input type="hidden" name="source" value="Franchise page">
           <p hidden><label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
           <h3>Start the conversation</h3>
           <p class="desc" style="opacity:.8">
