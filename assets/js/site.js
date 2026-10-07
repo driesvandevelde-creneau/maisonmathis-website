@@ -620,4 +620,20 @@
     });
   }
 
+  /* ---- mobile menu ---- */
+  var burger = document.querySelector(".burger"), mobileMenu = document.getElementById("mobileMenu"), mmBack = document.querySelector(".mm-backdrop");
+  if (burger && mobileMenu && mmBack) {
+    var setMobileMenu = function (open) {
+      mobileMenu.hidden = !open; mmBack.hidden = !open;
+      burger.setAttribute("aria-expanded", String(open));
+      document.body.style.overflow = open ? "hidden" : "";
+    };
+    burger.addEventListener("click", function () { setMobileMenu(mobileMenu.hidden); });
+    mmBack.addEventListener("click", function () { setMobileMenu(false); });
+    mobileMenu.addEventListener("click", function (e) { if (e.target.closest("a")) setMobileMenu(false); });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !mobileMenu.hidden) { setMobileMenu(false); burger.focus(); }
+    });
+    window.matchMedia("(min-width: 861px)").addEventListener("change", function (e) { if (e.matches) setMobileMenu(false); });
+  }
 })();
