@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://maison-mathis.com/sitemap.xml
