@@ -327,8 +327,8 @@
       wkReserve.href = "https://widget.servmeco.com/?oid=1564";
       wkReserve.target = "_blank"; wkReserve.rel = "noopener";
     } else {
-      wkReserve.href = "/#book";
-      wkReserve.removeAttribute("target"); wkReserve.removeAttribute("rel");
+      wkReserve.href = "https://www.sevenrooms.com/explore/maisonmathisarabianranches/reservations/create/search/";
+      wkReserve.target = "_blank"; wkReserve.rel = "noopener";
     }
   }
   buttons.forEach(function (b) {
@@ -782,7 +782,7 @@
 
   /* ---- warm up the booking engines once the chooser is in view ---- */
   if ("IntersectionObserver" in window) {
-    var warmed = false, bookSec = document.getElementById("book");
+    var warmed = false, bookSec = document.getElementById("locations");
     if (bookSec) new IntersectionObserver(function (entries, obs) {
       if (!entries.some(function (en) { return en.isIntersecting; }) || warmed) return;
       warmed = true; obs.disconnect();
