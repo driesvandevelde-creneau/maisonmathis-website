@@ -2,39 +2,23 @@ MAISON MATHIS - STATIC WEBSITE  (https://maison-mathis.com)
 ==============================================================
 
 Pages (each has its own address, title, description and structured data)
-  /                      Home            index.html
-  /winter-wonderland/    Winter Wonderland   winter-wonderland/index.html
-  /franchise/            Franchise       franchise/index.html
-  /arabian-ranches/      Arabian Ranches arabian-ranches/index.html
-  /voco-the-palm/        voco The Palm   voco-the-palm/index.html
-  /hasselt/              Hasselt         hasselt/index.html
-  /dubai-south/          Dubai South (opening soon)
-  /al-mouj/              Al Mouj (opening soon)
-  /pullman-jlt/          Pullman JLT (opening soon)
-
-Also included: assets/ (css, js, images, fonts), sitemap.xml, robots.txt, 404.html
+  /                      Home
+  /winter-wonderland/    Winter Wonderland
+  /franchise/            Franchise (+ /franchise/thank-you/ after a form is sent)
+  /arabian-ranches/  /voco-the-palm/  /hasselt/            open restaurants
+  /dubai-south/  /al-mouj/  /pullman-jlt/                  opening soon
 
 HOW TO PUBLISH ON NETLIFY
-1. Drag this whole folder onto Netlify (or connect it to a Git repository). The folder that contains
-   index.html must be the site root. Netlify serves /franchise/ from franchise/index.html automatically
-   and uses 404.html for missing pages.
-2. Add the domain maison-mathis.com under Site configuration > Domain management and switch on HTTPS.
-3. Submit https://maison-mathis.com/sitemap.xml in Google Search Console.
+  The site is deployed from the GitHub repository (branch main). Replace the files in the repository folder with the
+  files in this zip (copy over and replace; do not delete the folder first), then make ONE commit and push.
+  Netlify publishes automatically within seconds. No build command, publish directory = the root.
 
-FRANCHISE FORM (Netlify Forms)
-The form on /franchise/ is named "franchise-enquiry". Netlify finds it automatically when the site is deployed.
-To receive the enquiries by email:
-  Netlify > your site > Forms > Form notifications > Add notification > Email notification
-  Email to notify: info@creneauhospitality.com      Form: franchise-enquiry
-Visitors are sent to /franchise/thank-you/ after sending. Each submission is also kept in the Forms tab.
-Spam is limited by a hidden honeypot field; add reCAPTCHA in the Netlify form settings if spam appears.
-If the form cannot send, the visitor sees a link to email info@creneauhospitality.com directly.
+FORMS (Netlify Forms)
+  "franchise-enquiry"  the franchise form on /franchise/
+  "guest-interest"     the "Tell me when it opens" form on the home page
+  Both email info@creneauhospitality.com through the Netlify notification set up under Forms > Form notifications.
+  If a form cannot send, the visitor sees a link to email the same address directly.
 
-BEFORE LAUNCH
-- Add a preview image for link sharing (og:image) to the <head> of each page.
-- Add a privacy policy and cookie notice (Google Analytics is installed).
-
-FILES FOR NETLIFY
-- _headers: tells browsers to keep fonts, images, styles and scripts so repeat visits are fast.
-  Styles and scripts get a new file name whenever they change, so visitors always receive the latest version.
-  Page files (.html) are always re-checked. Images are kept for 7 days: if you replace an image, give the new file a new name.
+FILES
+  _headers: styles, scripts and fonts are kept by browsers for a year (they get a new file name whenever they change),
+  page files are always re-checked, images are kept for 7 days. If you replace an image, give the new file a new name.

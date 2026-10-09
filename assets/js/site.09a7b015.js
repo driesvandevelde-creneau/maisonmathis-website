@@ -43,7 +43,7 @@
     return { open: false, opens: v.hours[now.day][0] };
   }
 
-  function hhmm(h) { var x = h % 24; return (x < 10 ? "0" : "") + x + ":00"; }
+  function hhmm(h) { var x = h % 24; if (x === 0) return "midnight"; return (x < 10 ? "0" : "") + x + ":00"; }
 
   document.querySelectorAll(".status[data-venue]").forEach(function (el) {
     var s = state(el.getAttribute("data-venue"));
@@ -140,6 +140,8 @@
       "/assets/img/menu-hasselt-drinks-09.webp"
     ]
   };
+  /* the Arabian Ranches booklet carries its drinks list on pages 14-19 of the lunch & dinner scans */
+  MENU_PAGES["ar-drinks"] = MENU_PAGES["ar-lunch"].slice(13, 19);
   var MENU_TITLES = { breakfast: "Breakfast", lunch: "Lunch & dinner", drinks: "Drinks" };
   var HOUSE_NAMES = { ar: "Arabian Ranches", palm: "voco The Palm", hasselt: "Hasselt" };
   var typeOf = { ar: "lunch", palm: "lunch", hasselt: "lunch" };
@@ -151,6 +153,8 @@
     var book = document.querySelector('.mn-book[data-loc="' + loc + '"]');
     if (!book) return;
     var pages = bookPages(loc), type = typeOf[loc], key = loc + "-" + type;
+    book.hidden = pages.length === 0;
+    if (!pages.length) return;
     var at = spreadAt[key] || 0;
     book.setAttribute("data-type", type);
     var btns = book.querySelectorAll(".mn-pg");
@@ -171,12 +175,17 @@
   function renderBooks() { Object.keys(HOUSE_NAMES).forEach(renderBook); }
 
   function setType(loc, type) {
-    if (!MENU_PAGES[loc + "-" + type]) return;
-    typeOf[loc] = type;
     var panel = document.querySelector('.mn-panel[data-loc="' + loc + '"]');
-    if (panel) panel.querySelectorAll("[data-menu-tab]").forEach(function (t) {
-      t.setAttribute("aria-pressed", String(t.getAttribute("data-menu-tab") === type));
-    });
+    var hasSheet = panel && panel.querySelector('.menu-sheet[data-menu="' + type + '"]');
+    if (!MENU_PAGES[loc + "-" + type] && !hasSheet) return;
+    typeOf[loc] = type;
+    if (panel) {
+      panel.querySelectorAll("[data-menu-tab]").forEach(function (t) {
+        t.setAttribute("aria-pressed", String(t.getAttribute("data-menu-tab") === type));
+      });
+      /* the menu as text: one sheet per menu */
+      panel.querySelectorAll(".menu-sheet").forEach(function (sh) { sh.hidden = sh.getAttribute("data-menu") !== type; });
+    }
     renderBook(loc);
   }
 
@@ -197,11 +206,11 @@
       });
     });
     book.querySelectorAll(".mn-pg").forEach(function (pg) {
-      pg.addEventListener("click", function () { openReader(loc, parseInt(pg.getAttribute("data-page"), 10) || 0); });
+      pg.addEventListener("click", function () { openReader(loc, parseInt(pg.getAttribute("data-page"), 10) || 0, pg); });
     });
   });
   document.querySelectorAll("[data-read]").forEach(function (b) {
-    b.addEventListener("click", function () { openReader(b.getAttribute("data-read"), 0); });
+    b.addEventListener("click", function () { openReader(b.getAttribute("data-read"), 0, b); });
   });
 
   /* full-screen reader */
@@ -242,8 +251,8 @@
         b.setAttribute("aria-current", String(t === typeOf[rLoc]));
       });
     }
-    window.openReader = function (loc, page) {
-      lastFocus = document.activeElement;
+    window.openReader = function (loc, page, opener) {
+      lastFocus = opener || document.activeElement;
       rLoc = loc;
       reader.hidden = false;
       document.body.style.overflow = "hidden";
@@ -470,7 +479,7 @@
     dlg.addEventListener("close", function () { document.body.style.overflow = ""; });
   }
 
-  /* ---- deep links such as /#menus-palm open that house's menus ---- */
+  /* ---- deep links: /#menus-palm opens that house's menus; /?house=Dubai+South#interest pre-fills the guest-interest form ---- */
   function menuHash() {
     var m = /^#menus-(ar|palm|hasselt|emaar)$/.exec(location.hash);
     if (!m) return;
@@ -480,6 +489,11 @@
   }
   window.addEventListener("hashchange", menuHash);
   menuHash();
+  (function () {
+    var q = new URLSearchParams(location.search), h = document.getElementById("gi-house"), ev = document.getElementById("gi-event");
+    if (h && q.get("house")) h.value = q.get("house");
+    if (ev && q.get("event")) ev.value = q.get("event");
+  })();
 
   var wwTabs = document.querySelectorAll(".ww-tab");
   wwTabs.forEach(function (t) {
@@ -498,36 +512,62 @@
     });
   });
 
-  var wwHash = /^#(ar|palm|emaar)$/.exec(location.hash);
-  if (wwHash) { var wt = document.querySelector('.ww-tab[data-venue="' + wwHash[1] + '"]'); if (wt) wt.click(); }
+  function wwFromHash() {
+    var v = { "#arabian-ranches": "ar", "#palm": "palm", "#dubai-south": "emaar", "#ar": "ar", "#emaar": "emaar" }[location.hash];
+    if (!v) return;
+    var wt = document.querySelector('.ww-tab[data-venue="' + v + '"]'); if (wt) wt.click();
+  }
+  wwFromHash();
+  window.addEventListener("hashchange", wwFromHash);
 
   /* ---- house photo slideshow ---- */
   var GALLERIES = {
-    ar: { name: "Arabian Ranches", imgs: [
+    ar: { name: "Arabian Ranches", alts: [
+      "The dining room at Maison Mathis Arabian Ranches: black and white tiled floor, rattan chairs, bare-bulb pendants over the tables and the neon house line on a wooden wall",
+      "The bar and bakery counter at Maison Mathis Arabian Ranches, with fresh bread in the foreground, wine shelves and olive trees behind",
+      "The terrace at Maison Mathis Arabian Ranches: a white table set under the palms, looking out over the golf course"
+    ], imgs: [
       "/assets/img/maison-mathis-arabian-ranches-1.webp",
       "/assets/img/maison-mathis-arabian-ranches-2.webp",
       "/assets/img/maison-mathis-arabian-ranches-3.jpg"
     ] },
-    palm: { name: "voco The Palm", imgs: [
+    palm: { name: "voco The Palm", alts: [
+      "The dining room at Maison Mathis voco The Palm: tan leather banquette, rattan chairs on patterned tiles and folding doors open to the terrace",
+      "The open kitchen at Maison Mathis voco The Palm, green tiles under the Smakelijk sign, with an olive tree in the room",
+      "The covered terrace of Maison Mathis voco The Palm: bistro chairs on patterned tiles, patio heaters, palms and the Palm Jumeirah skyline beyond"
+    ], imgs: [
       "/assets/img/maison-mathis-voco-the-palm-1.webp",
       "/assets/img/maison-mathis-voco-the-palm-2.webp",
       "/assets/img/maison-mathis-voco-the-palm-3.webp"
     ] },
-    hasselt: { name: "Hasselt", imgs: [
+    hasselt: { name: "Hasselt", alts: [
+      "The marble bar at Maison Mathis Hasselt, back-lit bottle shelves and globe pendants, with a tan leather banquette along the window",
+      "The dining room at Maison Mathis Hasselt under a canopy of bare bulbs, with green-tiled columns, rattan chairs and a herringbone floor",
+      "A set table at Maison Mathis Hasselt seen from the mezzanine: rattan chairs on a geometric tiled rug and hanging greenery",
+      "The lounge at Maison Mathis Hasselt: velvet armchairs in olive and rust, a dark green wall of framed photographs and a botanical mural"
+    ], imgs: [
       "/assets/img/maison-mathis-hasselt-1.webp",
       "/assets/img/maison-mathis-hasselt-2.webp",
       "/assets/img/maison-mathis-hasselt-3.webp",
       "/assets/img/maison-mathis-hasselt-4.webp"
     ] },
-    emaar: { name: "Dubai South", imgs: [
+    emaar: { name: "Dubai South", render: true, alts: [
+      "Artist's render of the Maison Mathis Dubai South dining room: pendant lights, green banquettes and a patterned tiled rug",
+      "Artist's render of the Maison Mathis Dubai South terrace: scalloped parasols around an olive tree, with the house sign on the facade"
+    ], imgs: [
       "/assets/img/maison-mathis-dubai-south-1.webp",
       "/assets/img/maison-mathis-dubai-south-2.webp"
     ] },
-    almouj: { name: "Al Mouj", imgs: [
+    almouj: { name: "Al Mouj", render: true, alts: [
+      "Artist's render of the Maison Mathis Al Mouj dining room: globe pendants, rattan lounge chairs and a bar at the back",
+      "Artist's render of the Maison Mathis Al Mouj terrace under shade sails, with rattan loungers and wicker chairs"
+    ], imgs: [
       "/assets/img/maison-mathis-al-mouj-1.webp",
       "/assets/img/maison-mathis-al-mouj-2.webp"
     ] },
-    pullman: { name: "Pullman JLT", imgs: [
+    pullman: { name: "Pullman JLT", render: true, alts: [
+      "Artist's render of the Maison Mathis Pullman JLT dining room: green banquettes, a central service station and pendant lights"
+    ], imgs: [
       "/assets/img/maison-mathis-pullman-jlt-1.webp"
     ] },
   };
@@ -540,8 +580,8 @@
       var set = GALLERIES[gKey]; if (!set) return;
       gIdx = (i + set.imgs.length) % set.imgs.length;
       gImg.src = set.imgs[gIdx];
-      gImg.alt = "Maison Mathis " + set.name + ", photo " + (gIdx + 1) + " of " + set.imgs.length;
-      document.getElementById("gCount").textContent = (gIdx + 1) + " / " + set.imgs.length;
+      gImg.alt = (set.alts && set.alts[gIdx]) || ("Maison Mathis " + set.name + (set.render ? ", render " : ", photo ") + (gIdx + 1) + " of " + set.imgs.length);
+      document.getElementById("gCount").textContent = (gIdx + 1) + " / " + set.imgs.length + (set.render ? " \u00B7 artist's renders" : "");
       [].forEach.call(gThumbs.children, function (b, n) { b.setAttribute("aria-current", String(n === gIdx)); });
       var multi = set.imgs.length > 1;
       document.getElementById("gPrev").hidden = !multi;
@@ -550,11 +590,11 @@
     function gOpen(key, idx) {
       var set = GALLERIES[key]; if (!set) return;
       gKey = key;
-      document.getElementById("gTitle").textContent = set.name;
+      document.getElementById("gTitle").textContent = set.name + (set.render ? " \u00B7 opening soon" : "");
       gThumbs.textContent = "";
       set.imgs.forEach(function (src, n) {
         var b = document.createElement("button"); b.type = "button";
-        b.setAttribute("aria-label", "Show photo " + (n + 1));
+        b.setAttribute("aria-label", (set.render ? "Show render " : "Show photo ") + (n + 1));
         var t = document.createElement("img"); t.src = src; t.alt = "";
         b.appendChild(t);
         b.addEventListener("click", function () { gShow(n); });
@@ -586,6 +626,16 @@
     });
   }
 
+  /* ---- franchise page: reuse the house photos ---- */
+  document.querySelectorAll("img[data-gal]").forEach(function (im) {
+    var parts = im.getAttribute("data-gal").split(":");
+    var set = GALLERIES[parts[0]];
+    if (set && set.imgs[+parts[1]]) im.src = set.imgs[+parts[1]];
+  });
+
+  /* a form handler exists only on the real hosts; anywhere else (this preview) the forms hand off to email honestly */
+  var HAS_FORM_HANDLER = /(^|\.)maison-mathis\.com$|\.netlify\.app$/.test(location.hostname);
+
   /* ---- franchise enquiry: sent to the site's form handler (Netlify Forms), with an email fallback ---- */
   document.querySelectorAll("form.js-franchise-form").forEach(function (franchiseForm) {
     var TO = "info@creneauhospitality.com";
@@ -595,6 +645,13 @@
       var note = franchiseForm.querySelector(".fineprint");
       var fd = new FormData(franchiseForm);
       var val = function (k) { return String(fd.get(k) || "").trim(); };
+      if (!HAS_FORM_HANDLER) {
+        var body0 = ["Franchise pack request from the Maison Mathis website", "", "Name: " + val("name"), "Company: " + val("company"), "Email: " + val("email"), "Phone: " + val("phone"), "Market or territory: " + val("market")].join("\r\n");
+        note.textContent = "This preview has no form handler, so your answers open in your email app instead: ";
+        var fb0 = document.createElement("a"); fb0.href = "mailto:" + TO + "?subject=" + encodeURIComponent("Franchise pack request - " + val("name") + ", " + val("company") + ", " + val("market")) + "&body=" + encodeURIComponent(body0); fb0.textContent = "send by email"; note.appendChild(fb0); note.appendChild(document.createTextNode("."));
+        fb0.focus();
+        return;
+      }
       btn.disabled = true; note.textContent = "Sending...";
       fetch("/", {
         method: "POST",
@@ -610,16 +667,135 @@
         btn.disabled = false;
         var body = [
           "Franchise pack request from the Maison Mathis website", "",
-          "Name: " + val("name"), "Email: " + val("email"), "Phone: " + val("phone"),
-          "Market or territory: " + val("market"), "Existing F&B units: " + val("units"),
-          "Capital available: " + val("capital"), "Target opening: " + val("opening")
+          "Name: " + val("name"), "Company: " + val("company"), "Email: " + val("email"),
+          "Phone: " + val("phone"), "Market or territory: " + val("market")
         ].join("\r\n");
-        var href = "mailto:" + TO + "?subject=" + encodeURIComponent("Franchise pack request - " + val("name") + ", " + val("market")) + "&body=" + encodeURIComponent(body);
+        var href = "mailto:" + TO + "?subject=" + encodeURIComponent("Franchise pack request - " + val("name") + ", " + val("company") + ", " + val("market")) + "&body=" + encodeURIComponent(body);
         note.textContent = "Sorry, that did not send" + (err && err.status ? " (error " + err.status + ")" : "") + ". Please try again, or ";
         var fb = document.createElement("a"); fb.href = href; fb.textContent = "email us directly";
         note.appendChild(fb); note.appendChild(document.createTextNode("."));
       });
     });
+  });
+
+  /* ---- buttons: the label gets its own span so the hover underline sits under the text ---- */
+  document.querySelectorAll(".btn").forEach(function (b) {
+    if (b.querySelector(".lbl") || b.classList.contains("wk-more")) return;
+    var span = document.createElement("span"); span.className = "lbl";
+    var nodes = Array.prototype.slice.call(b.childNodes).filter(function (n) { return !(n.nodeType === 1 && n.classList.contains("seal")); });
+    nodes.forEach(function (n) { span.appendChild(n); });
+    b.appendChild(span);
+  });
+
+  /* ---- menus as text: a jump index at the top of each sheet ---- */
+  document.querySelectorAll(".menu-sheet").forEach(function (sheet, si) {
+    var head = sheet.querySelector("header"); if (!head) return;
+    var nav = document.createElement("nav"); nav.className = "ms-index"; nav.setAttribute("aria-label", "Sections of this menu");
+    sheet.querySelectorAll(".ms-section").forEach(function (sec, i) {
+      var h = sec.querySelector("h4"); if (!h) return;
+      var id = "ms-" + sheet.getAttribute("data-menu") + "-" + i; sec.id = id;
+      var a = document.createElement("a"); a.href = "#" + id;
+      a.textContent = (h.firstChild && h.firstChild.nodeType === 3 ? h.firstChild.textContent : h.textContent).trim();
+      a.addEventListener("click", function (e) { e.preventDefault(); sec.scrollIntoView({ block: "start" }); });
+      nav.appendChild(a);
+    });
+    head.appendChild(nav);
+  });
+
+  /* ---- skip link: to the visible page, never a route change ---- */
+  var skip = document.getElementById("skipLink");
+  if (skip) skip.addEventListener("click", function (e) {
+    e.preventDefault();
+    var main = document.querySelector("main:not([hidden])");
+    if (!main) return;
+    main.setAttribute("tabindex", "-1"); main.focus({ preventScroll: true }); main.scrollIntoView();
+  });
+
+  /* ---- menu reader: zoom ---- */
+  var rZoom = document.getElementById("rZoom");
+  if (rZoom && rStage) rZoom.addEventListener("click", function () {
+    var on = rStage.classList.toggle("zoomed");
+    rZoom.setAttribute("aria-pressed", String(on));
+    rZoom.textContent = on ? "Fit page" : "Zoom";
+  });
+
+  /* ---- dialogs: focus returns to the control that opened them ---- */
+  [["promoDialog", ".wk-more"], ["galleryDialog", "[data-gallery]"]].forEach(function (pair) {
+    var d = document.getElementById(pair[0]); if (!d) return;
+    var opener = null;
+    document.addEventListener("click", function (e) { var b = e.target.closest(pair[1]); if (b) opener = b; }, true);
+    d.addEventListener("close", function () { if (opener && opener.focus) opener.focus(); });
+  });
+
+  /* ---- guest interest: prefill from the control, send to the form handler, email fallback ---- */
+  document.querySelectorAll("[data-interest-house]").forEach(function (a) {
+    a.addEventListener("click", function () {
+      var h = document.getElementById("gi-house"), ev = document.getElementById("gi-event");
+      if (h) h.value = a.getAttribute("data-interest-house");
+      if (ev) ev.value = a.getAttribute("data-interest-event") || "";
+    });
+  });
+  var interestForm = document.getElementById("interestForm");
+  if (interestForm) {
+    var INTEREST_TO = "info@creneauhospitality.com"; /* recipient to be confirmed by the business */
+    interestForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var btn = interestForm.querySelector('button[type="submit"]'), note = document.getElementById("interestNote");
+      var fd = new FormData(interestForm), val = function (k) { return String(fd.get(k) || "").trim(); };
+      if (!HAS_FORM_HANDLER) {
+        var body1 = ["Guest interest from the Maison Mathis website", "", "Name: " + val("name"), "Email: " + val("email"), "House: " + val("house"), "Event: " + (val("event") || "-")].join("\r\n");
+        note.textContent = "This preview has no form handler, so your details open in your email app instead: ";
+        var fb1 = document.createElement("a"); fb1.href = "mailto:" + INTEREST_TO + "?subject=" + encodeURIComponent("Tell me when it opens - " + val("house")) + "&body=" + encodeURIComponent(body1); fb1.textContent = "send by email"; note.appendChild(fb1); note.appendChild(document.createTextNode("."));
+        fb1.focus();
+        return;
+      }
+      btn.disabled = true; note.textContent = "Sending...";
+      fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams(fd).toString(), redirect: "manual" })
+        .then(function (r) {
+          if (!(r.ok || r.type === "opaqueredirect")) { var err = new Error("status " + r.status); err.status = r.status; throw err; }
+          note.textContent = "Thank you, " + val("name") + ". We will write to " + val("email") + " about " + val("house") + (val("event") ? " and " + val("event") : "") + ".";
+          interestForm.reset(); btn.disabled = false;
+        })
+        .catch(function (err) {
+          btn.disabled = false;
+          var body = ["Guest interest from the Maison Mathis website", "", "Name: " + val("name"), "Email: " + val("email"), "House: " + val("house"), "Event: " + (val("event") || "-")].join("\r\n");
+          var href = "mailto:" + INTEREST_TO + "?subject=" + encodeURIComponent("Tell me when it opens - " + val("house")) + "&body=" + encodeURIComponent(body);
+          note.textContent = "Sorry, that did not send. Please try again, or ";
+          var fb = document.createElement("a"); fb.href = href; fb.textContent = "email us directly"; note.appendChild(fb); note.appendChild(document.createTextNode("."));
+        });
+    });
+  }
+
+  /* ---- remember the last house a guest chose ---- */
+  var HOUSE_LABEL = { ar: "Arabian Ranches", palm: "voco The Palm", hasselt: "Hasselt" };
+  document.querySelectorAll(".js-reserve").forEach(function (a) {
+    a.addEventListener("click", function () { try { localStorage.setItem("mm-house", a.getAttribute("data-house")); } catch (e) {} });
+  });
+  try {
+    var lastHouse = localStorage.getItem("mm-house");
+    var lastCard = lastHouse && document.querySelector('.venue[data-house="' + lastHouse + '"]');
+    if (lastCard && !lastCard.querySelector(".last-choice")) {
+      var tag = document.createElement("p"); tag.className = "cue last-choice"; tag.textContent = "Your last choice";
+      lastCard.insertBefore(tag, lastCard.querySelector("h3"));
+    }
+  } catch (e) {}
+
+  /* ---- warm up the booking engines once the chooser is in view ---- */
+  if ("IntersectionObserver" in window) {
+    var warmed = false, bookSec = document.getElementById("book");
+    if (bookSec) new IntersectionObserver(function (entries, obs) {
+      if (!entries.some(function (en) { return en.isIntersecting; }) || warmed) return;
+      warmed = true; obs.disconnect();
+      ["https://www.sevenrooms.com/explore/maisonmathisarabianranches/reservations/create/search/", "https://widget.servmeco.com/?oid=1564"].forEach(function (u) {
+        var l = document.createElement("link"); l.rel = "prefetch"; l.href = u; l.as = "document"; document.head.appendChild(l);
+      });
+    }, { threshold: 0.1 }).observe(bookSec);
+  }
+
+  /* ---- images that share one embedded copy ---- */
+  document.querySelectorAll("img[data-same]").forEach(function (im) {
+    var src = document.getElementById(im.getAttribute("data-same"));
+    if (src) im.src = src.src;
   });
 
   /* ---- mobile menu ---- */
@@ -628,7 +804,10 @@
     var setMobileMenu = function (open) {
       mobileMenu.hidden = !open; mmBack.hidden = !open;
       burger.setAttribute("aria-expanded", String(open));
+      burger.setAttribute("aria-label", open ? "Close navigation" : "Open navigation");
       document.body.style.overflow = open ? "hidden" : "";
+      if (open) { var first = mobileMenu.querySelector("a"); if (first) first.focus(); }
+      else if (document.activeElement && mobileMenu.contains(document.activeElement)) burger.focus();
     };
     burger.addEventListener("click", function () { setMobileMenu(mobileMenu.hidden); });
     mmBack.addEventListener("click", function () { setMobileMenu(false); });
