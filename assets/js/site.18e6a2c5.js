@@ -138,13 +138,25 @@
       "/assets/img/menu-hasselt-drinks-07.webp",
       "/assets/img/menu-hasselt-drinks-08.webp",
       "/assets/img/menu-hasselt-drinks-09.webp"
+    ],
+    "emaar-brunch": [
+      "/assets/img/menu-emaar-brunch-01.webp",
+      "/assets/img/menu-emaar-brunch-02.webp",
+      "/assets/img/menu-emaar-brunch-03.webp",
+      "/assets/img/menu-emaar-brunch-04.webp"
+    ],
+    "emaar-nye": [
+      "/assets/img/menu-emaar-nye-01.webp",
+      "/assets/img/menu-emaar-nye-02.webp",
+      "/assets/img/menu-emaar-nye-03.webp",
+      "/assets/img/menu-emaar-nye-04.webp"
     ]
   };
   /* the Arabian Ranches booklet carries its drinks list on pages 14-19 of the lunch & dinner scans */
   MENU_PAGES["ar-drinks"] = MENU_PAGES["ar-lunch"].slice(13, 19);
-  var MENU_TITLES = { breakfast: "Breakfast", lunch: "Lunch & dinner", drinks: "Drinks" };
-  var HOUSE_NAMES = { ar: "Arabian Ranches", palm: "voco The Palm", hasselt: "Hasselt" };
-  var typeOf = { ar: "lunch", palm: "lunch", hasselt: "lunch" };
+  var MENU_TITLES = { breakfast: "Breakfast", lunch: "Lunch & dinner", drinks: "Drinks", brunch: "Christmas Day Brunch", nye: "New Year\u2019s Eve" };
+  var HOUSE_NAMES = { ar: "Arabian Ranches", palm: "voco The Palm", hasselt: "Hasselt", emaar: "Dubai South" };
+  var typeOf = { ar: "lunch", palm: "lunch", hasselt: "lunch", emaar: "brunch" };
   var spreadAt = {};
 
   function bookPages(loc) { return MENU_PAGES[loc + "-" + typeOf[loc]] || []; }
@@ -210,7 +222,11 @@
     });
   });
   document.querySelectorAll("[data-read]").forEach(function (b) {
-    b.addEventListener("click", function () { openReader(b.getAttribute("data-read"), 0, b); });
+    b.addEventListener("click", function () {
+      var loc = b.getAttribute("data-read"), t = b.getAttribute("data-read-type");
+      if (t && MENU_PAGES[loc + "-" + t]) typeOf[loc] = t;      /* which menu this button opens */
+      openReader(loc, 0, b);
+    });
   });
 
   /* full-screen reader */

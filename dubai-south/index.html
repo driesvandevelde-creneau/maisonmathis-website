@@ -144,7 +144,7 @@
         <button type="button" class="hs-photo" data-gallery="emaar" data-index="0" aria-label="Open photo 1 of 2"><img src="/assets/img/maison-mathis-dubai-south-1.webp" alt="Artist&#x27;s render of the Maison Mathis Dubai South dining room: pendant lights, green banquettes and a patterned tiled rug" loading="lazy" decoding="async"></button>
         <button type="button" class="hs-photo" data-gallery="emaar" data-index="1" aria-label="Open photo 2 of 2"><img src="/assets/img/maison-mathis-dubai-south-2.webp" alt="Artist&#x27;s render of the Maison Mathis Dubai South terrace: scalloped parasols around an olive tree, with the house sign on the facade" loading="lazy" decoding="async"></button>
       </div></div></section>
-  <section class="hs-festive"><div class="wrap"><h2>Winter Wonderland</h2><p>Tree lighting, carol singers, Santa&rsquo;s Grotto, Christmas brunch and New Year&rsquo;s Eve: see the festive programme planned for Dubai South.</p><a class="btn" href="/winter-wonderland/#dubai-south">See the festive programme</a></div></section>
+  <section class="hs-festive"><div class="wrap"><h2>Winter Wonderland</h2><p>Tree lighting, carol singers, Santa&rsquo;s Grotto, Christmas brunch and New Year&rsquo;s Eve: see the festive programme planned for Dubai South.</p><div style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px 14px"><a class="btn" href="/winter-wonderland/#dubai-south">See the festive programme</a><button class="btn" type="button" data-read="emaar" data-read-type="brunch">Read the Christmas Day Brunch menu</button><button class="btn" type="button" data-read="emaar" data-read-type="nye">Read the New Year’s Eve menu</button></div></div></section>
 <section class="band hs-others" id="other-houses"><div class="wrap"><div class="sec-head"><h2>Our other houses</h2></div><div class="locs">
         <article class="loc">
           <div class="shot"><img src="/assets/img/maison-mathis-arabian-ranches-2.webp" alt="The bar and bakery counter at Maison Mathis Arabian Ranches, with fresh bread in the foreground, wine shelves and olive trees behind" width="1400" height="788" loading="lazy" decoding="async"></div>
@@ -283,6 +283,30 @@
     </div>
     <div class="g-thumbs" id="gThumbs"></div>
   </dialog>
-<script src="/assets/js/site.1a3b1f0a.js" defer></script>
+<div aria-labelledby="rTitle" aria-modal="true" class="reader" hidden="" id="menuReader" role="dialog">
+<div class="reader-bar">
+<span class="title" id="rTitle">Lunch &amp; Dinner</span>
+<span class="menu-switch">
+<button class="rbtn" data-rtype="breakfast" type="button">Breakfast</button>
+<button class="rbtn" data-rtype="lunch" type="button">Lunch &amp; dinner</button>
+<button class="rbtn" data-rtype="drinks" type="button">Drinks</button>
+<button class="rbtn" data-rtype="brunch" type="button">Christmas Day Brunch</button>
+<button class="rbtn" data-rtype="nye" type="button">New Year’s Eve</button>
+</span>
+<span class="count" id="rCount">Page 1 of 7</span>
+<span class="sp"></span>
+<button aria-pressed="false" class="rbtn" id="rZoom" type="button">Zoom</button>
+<button class="rbtn" id="rPrev" type="button">Previous</button>
+<button class="rbtn" id="rNext" type="button">Next</button>
+<button class="rbtn" id="rClose" type="button">Close</button>
+</div>
+<div class="reader-stage" id="rStage">
+<img alt="Menu page" id="rImg" src=""/>
+</div>
+<div class="reader-foot">
+<div class="thumbs" id="rThumbs"></div>
+</div>
+</div>
+<script src="/assets/js/site.18e6a2c5.js" defer></script>
 </body>
 </html>

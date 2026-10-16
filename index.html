@@ -668,7 +668,8 @@
         <div class="mn-soon">
           <p class="label" style="color:var(--olive)">Menus at</p>
           <h3>Dubai South</h3>
-          <p>Dubai South is opening soon. Its menus will be shared closer to opening. <a href="/#interest">Tell me when it opens</a>.</p>
+          <p>Dubai South is opening soon. Its everyday menus will be shared closer to opening, but you can read the festive menus now. <a href="/#interest">Tell me when it opens</a>.</p>
+          <p style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px 14px"><button class="btn btn-secondary" type="button" data-read="emaar" data-read-type="brunch">Read the Christmas Day Brunch menu</button><button class="btn btn-secondary" type="button" data-read="emaar" data-read-type="nye">Read the New Year&rsquo;s Eve menu</button></p>
         </div>
       </div>
     </div>
@@ -713,28 +714,7 @@
 
 
 
-  <div class="reader" id="menuReader" hidden role="dialog" aria-modal="true" aria-labelledby="rTitle">
-    <div class="reader-bar">
-      <span class="title" id="rTitle">Lunch &amp; Dinner</span>
-      <span class="menu-switch">
-        <button class="rbtn" type="button" data-rtype="breakfast">Breakfast</button>
-        <button class="rbtn" type="button" data-rtype="lunch">Lunch &amp; dinner</button>
-        <button class="rbtn" type="button" data-rtype="drinks">Drinks</button>
-      </span>
-      <span class="count" id="rCount">Page 1 of 7</span>
-      <span class="sp"></span>
-      <button class="rbtn" id="rZoom" type="button" aria-pressed="false">Zoom</button>
-      <button class="rbtn" id="rPrev" type="button">Previous</button>
-      <button class="rbtn" id="rNext" type="button">Next</button>
-      <button class="rbtn" id="rClose" type="button">Close</button>
-    </div>
-    <div class="reader-stage" id="rStage">
-      <img id="rImg" src="" alt="Menu page">
-    </div>
-    <div class="reader-foot">
-      <div class="thumbs" id="rThumbs"></div>
-    </div>
-  </div>
+  
 
 </main>
 
@@ -814,6 +794,31 @@
   </div>
 </footer>
 
+<div aria-labelledby="rTitle" aria-modal="true" class="reader" hidden="" id="menuReader" role="dialog">
+<div class="reader-bar">
+<span class="title" id="rTitle">Lunch &amp; Dinner</span>
+<span class="menu-switch">
+<button class="rbtn" data-rtype="breakfast" type="button">Breakfast</button>
+<button class="rbtn" data-rtype="lunch" type="button">Lunch &amp; dinner</button>
+<button class="rbtn" data-rtype="drinks" type="button">Drinks</button>
+<button class="rbtn" data-rtype="brunch" type="button">Christmas Day Brunch</button>
+<button class="rbtn" data-rtype="nye" type="button">New Year’s Eve</button>
+</span>
+<span class="count" id="rCount">Page 1 of 7</span>
+<span class="sp"></span>
+<button aria-pressed="false" class="rbtn" id="rZoom" type="button">Zoom</button>
+<button class="rbtn" id="rPrev" type="button">Previous</button>
+<button class="rbtn" id="rNext" type="button">Next</button>
+<button class="rbtn" id="rClose" type="button">Close</button>
+</div>
+<div class="reader-stage" id="rStage">
+<img alt="Menu page" id="rImg" src=""/>
+</div>
+<div class="reader-foot">
+<div class="thumbs" id="rThumbs"></div>
+</div>
+</div>
+
 <dialog class="promo-dialog" id="promoDialog" aria-labelledby="pdTitle">
     <div class="pd-head">
       <div>
@@ -843,6 +848,6 @@
     <div class="g-thumbs" id="gThumbs"></div>
   </dialog>
 
-<script src="/assets/js/site.1a3b1f0a.js" defer></script>
+<script src="/assets/js/site.18e6a2c5.js" defer></script>
 </body>
 </html>

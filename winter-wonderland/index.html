@@ -507,9 +507,10 @@
             <p class="ww-copy">Great food, good cheer and the best Christmas vibes, all at Maison Mathis Dubai South.</p>
             <div class="ww-pack">
             <p class="ww-pack-h">Packages</p>
-            <ul class="ww-rows"><li><span class="n">Non-alcoholic</span><span class="p">399 <small>AED</small></span></li><li><span class="n">Alcoholic</span><span class="p">549 <small>AED</small></span></li><li><span class="n">Kids</span><span class="p">150 <small>AED</small></span></li></ul>
+            <ul class="ww-rows"><li><span class="n">Soft package</span><span class="p">549 <small>AED</small></span></li><li><span class="n">House package</span><span class="p">699 <small>AED</small></span></li><li><span class="n">Little Elves</span><span class="p">180 <small>AED</small></span></li></ul>
+            <p class="cue" style="margin-top:10px">Per person, every station included. Soft package: soft drinks, juices, tea and coffee. House package: selected house beverages, 12pm to 4pm. Little Elves: for the children, small portions of what you want, when you want.</p>
           </div>
-            <div class="acts"><a class="btn btn-primary" href="/#interest" data-interest-house="Dubai South" data-interest-event="Christmas Brunch, 25 December 2026">Enquire about Christmas Brunch</a><p class="cue" style="margin-top:8px">Dubai South is opening soon; leave your details and we will confirm bookings when they open.</p></div>
+            <div class="acts" style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 14px"><a class="btn btn-primary" href="/#interest" data-interest-house="Dubai South" data-interest-event="Christmas Brunch, 25 December 2026">Enquire about Christmas Brunch</a><button class="btn btn-secondary" type="button" data-read="emaar" data-read-type="brunch">View the brunch menu</button><p class="cue" style="margin-top:4px;flex-basis:100%">Dubai South is opening soon; leave your details and we will confirm bookings when they open.</p></div>
           </div>
           <div class="ww-photo" style="aspect-ratio: 3 / 2"><img src="/assets/img/a-table-of-friends-and-family-celebrating-over-brunch-at.webp" alt="A table of friends and family celebrating over brunch at Maison Mathis, photographed at one of our open houses" loading="lazy" decoding="async"><span class="credit">Photographed at an open Maison Mathis house</span></div>
         </div>
@@ -520,14 +521,15 @@
       <div class="wrap">
         <div class="ww-grid">
           <div class="ww-text">
-            <p class="ww-when"><b>31 December 2026</b><span>20:00 - 01:00</span></p>
+            <p class="ww-when"><b>31 December 2026</b><span>20:00 - 02:00</span></p>
             <h2>New Year&rsquo;s Eve</h2>
             <p class="ww-copy">Ring in the New Year in true Maison Mathis style! Join us for an unforgettable New Year&rsquo;s Eve filled with retro classics, a delicious feast, live food stations and endless drinks.</p>
-            <div class="acts"><a class="btn btn-primary" href="/#interest" data-interest-house="Dubai South" data-interest-event="New Year's Eve, 31 December 2026">Enquire about New Year&rsquo;s Eve</a><p class="cue" style="margin-top:8px">Dubai South is opening soon; leave your details and we will confirm bookings when they open.</p></div>
+            <div class="acts" style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 14px"><a class="btn btn-primary" href="/#interest" data-interest-house="Dubai South" data-interest-event="New Year's Eve, 31 December 2026">Enquire about New Year&rsquo;s Eve</a><button class="btn btn-secondary" type="button" data-read="emaar" data-read-type="nye">View the NYE menu</button><p class="cue" style="margin-top:4px;flex-basis:100%">Dubai South is opening soon; leave your details and we will confirm bookings when they open.</p></div>
           </div>
           <div class="ww-pack">
             <p class="ww-pack-h">Packages</p>
-            <ul class="ww-rows"><li><span class="n">Non-alcoholic</span><span class="p">449 <small>AED</small></span></li><li><span class="n">Alcoholic</span><span class="p">599 <small>AED</small></span></li><li><span class="n">Kids</span><span class="p">150 <small>AED</small></span></li></ul>
+            <ul class="ww-rows"><li><span class="n">Non-alcoholic</span><span class="p">599 <small>AED</small></span></li><li><span class="n">Alcoholic</span><span class="p">749 <small>AED</small></span></li><li><span class="n">Kids</span><span class="p">180 <small>AED</small></span></li></ul>
+            <p class="cue" style="margin-top:10px">Per person, 8pm to 2am.</p>
           </div>
         </div>
       </div>
@@ -619,6 +621,31 @@
   </div>
 </footer>
 
-<script src="/assets/js/site.1a3b1f0a.js" defer></script>
+<div aria-labelledby="rTitle" aria-modal="true" class="reader" hidden="" id="menuReader" role="dialog">
+<div class="reader-bar">
+<span class="title" id="rTitle">Lunch &amp; Dinner</span>
+<span class="menu-switch">
+<button class="rbtn" data-rtype="breakfast" type="button">Breakfast</button>
+<button class="rbtn" data-rtype="lunch" type="button">Lunch &amp; dinner</button>
+<button class="rbtn" data-rtype="drinks" type="button">Drinks</button>
+<button class="rbtn" data-rtype="brunch" type="button">Christmas Day Brunch</button>
+<button class="rbtn" data-rtype="nye" type="button">New Year’s Eve</button>
+</span>
+<span class="count" id="rCount">Page 1 of 7</span>
+<span class="sp"></span>
+<button aria-pressed="false" class="rbtn" id="rZoom" type="button">Zoom</button>
+<button class="rbtn" id="rPrev" type="button">Previous</button>
+<button class="rbtn" id="rNext" type="button">Next</button>
+<button class="rbtn" id="rClose" type="button">Close</button>
+</div>
+<div class="reader-stage" id="rStage">
+<img alt="Menu page" id="rImg" src=""/>
+</div>
+<div class="reader-foot">
+<div class="thumbs" id="rThumbs"></div>
+</div>
+</div>
+
+<script src="/assets/js/site.18e6a2c5.js" defer></script>
 </body>
 </html>
