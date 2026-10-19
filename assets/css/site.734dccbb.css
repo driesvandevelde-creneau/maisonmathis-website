@@ -1351,6 +1351,30 @@ footer h2.foot-h { font-family: var(--display); font-size: 15px; letter-spacing:
    a third empty on desktop and tablet) */
 .mn-panel .mn-spread { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
+/* ---------- voco The Palm festive programme ---------- */
+.ww-new { display: inline-block; vertical-align: middle; margin-left: 10px; padding: 4px 9px 3px; background: var(--bordeaux); color: var(--cream); font-family: var(--sans, inherit); font-size: 10px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; line-height: 1.2; }
+.ww-wine .ww-new { background: var(--cream); color: var(--bordeaux); }
+.ww-glance-grid.g10 .ww-glance-item:last-child { grid-column: auto; }
+.ww-glance-grid.g10 .ww-glance-item b { line-height: 1.15; }
+.ww-event .ww-notes, .ww-event .cue { max-width: 52ch; }
+/* takeaway: the email link was dark green on the dark band */
+.ww-take .btn-tertiary { color: var(--cream); border-color: var(--cream); }
+.ww-take .btn-tertiary:hover { color: var(--white); border-color: var(--white); }
+
+/* ---------- special event under What's on this week (voco The Palm) ---------- */
+.wk-special { margin-top: 44px; display: grid; grid-template-columns: 1.35fr 1fr; gap: 28px 56px; align-items: start; padding: 34px 36px 36px; background: var(--paper-2); border: 1px solid var(--rule); border-top: 3px solid var(--bordeaux); }
+.wk-special[hidden] { display: none; }
+.wk-sp-label { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--olive); margin: 0 0 10px; }
+.wk-special .ww-when { margin-bottom: 8px; }
+.wk-special h3 { font-family: var(--display); font-size: clamp(28px, 3.6vw, 42px); font-weight: 400; line-height: .98; text-transform: uppercase; color: var(--forest); margin: 0 0 10px; }
+.wk-sp-tag { font-family: var(--script); font-size: clamp(24px, 2.6vw, 30px); line-height: 1.1; color: var(--bordeaux); margin: 0 0 16px; }
+.wk-special p { max-width: 60ch; }
+.wk-special .wk-sp-copy p:not(.wk-sp-label):not(.ww-when):not(.wk-sp-tag) { line-height: 1.6; color: var(--ink-soft); margin: 0 0 12px; }
+.wk-sp-pack .ww-pack-h { margin: 0 0 10px; }
+.wk-sp-pack .ww-rows { margin-top: 0; max-width: none; }
+.wk-sp-pack .acts { margin-top: 22px; }
+@media (max-width: 860px) { .wk-special { grid-template-columns: 1fr; padding: 26px 22px 28px; margin-top: 34px; } }
+
 /* ---------- restaurant pages ---------- */
 .hs-status { margin: -4px 0 4px; font-size: 14px; }
 .hs-visit { background: var(--paper-2); border-bottom: 1px solid var(--rule); }

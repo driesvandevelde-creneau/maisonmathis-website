@@ -336,6 +336,10 @@
       if (vis.length) { vis[0].classList.add("is-first"); vis[vis.length - 1].classList.add("is-last"); }
       day.querySelector(".wk-none").hidden = shown > 0;
     });
+    document.querySelectorAll(".wk-special").forEach(function (sp) {
+      var until = Date.parse(sp.getAttribute("data-until") || ""), live = isNaN(until) || Date.now() < until;
+      sp.hidden = !(live && (want === "all" || sp.getAttribute("data-venue") === want));
+    });
   }
   var wkReserve = document.getElementById("wkReserve");
   function setReserve(which) {
@@ -440,10 +444,10 @@
       intro: ["Step into an elevated Saturday brunch at Maison Mathis, where bold flavours, generous sharing boards and family-friendly moments blend seamlessly in a setting that feels both relaxed and refined.",
               "Enjoy live entertainment by Natalie the Singer and Alex the Saxophonist, adding rhythm and atmosphere throughout the afternoon."],
       sections: [{ heading: "Choose your brunch package", rows: [
-        ["Soft Package", "", "199"],
-        ["House Package", "", "249"],
-        ["Premium Package", "", "449"],
-        ["Kids Package (6 - 12 years)", "Includes one choice of main course and one choice of dessert from the Kids Menu", "50"]
+        ["Soft Package", "", "299"],
+        ["House Package", "", "399"],
+        ["Premium Package", "", "599"],
+        ["Kids Package (6 - 12 years)", "Includes one choice of main course and one choice of dessert from the Kids Menu", "60"]
       ] }]
     }
   };
@@ -517,7 +521,7 @@
       var v = t.getAttribute("data-venue");
       var LEADS = {
         ar: "Carollers \u00b7 Santa\u2019s Grotto \u00b7 Christmas & NYE brunches \u00b7 Festive food specials",
-        palm: "Our festive programme will be announced shortly",
+        palm: "Jazz nights \u00b7 Festive brunches \u00b7 Sunday roasts \u00b7 New Year\u2019s Eve countdown \u00b7 Christmas takeaway",
         emaar: "Tree lighting \u00b7 Carollers \u00b7 Santa\u2019s Grotto \u00b7 Christmas brunch \u00b7 New Year\u2019s Eve"
       };
       document.getElementById("wwLead").textContent = LEADS[v];
