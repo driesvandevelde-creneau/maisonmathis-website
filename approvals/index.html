@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Creneau Approvals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: sticky brand bar, sticky venue switcher, one working column. Role decides the main view. */
+:root{
+  --bg:#EEF1F3; --surface:#FFFFFF; --surface-2:#F5F7F8; --ink:#14212B; --muted:#586873; --line:#DCE2E6;
+  --brand:#12303F; --brand-ink:#FFFFFF; --accent:#8C6522; --accent-soft:#F3EAD7;
+  --ok:#1E7A4F; --ok-soft:#DDF1E6; --ok-btn:#1E7A4F; --ok-btn-ink:#FFFFFF;
+  --warn:#935500; --warn-soft:#FBEBCF; --bad:#B3362B; --bad-soft:#F8DEDA; --info:#2D5F8B; --info-soft:#DCE9F4;
+  --focus:#2D6CDF; --shadow:0 1px 2px rgba(20,33,43,.06),0 4px 14px rgba(20,33,43,.05);
+  --v1:#B5483A; --v2:#2F7F86; --v3:#8A6BB5; --v4:#B08A2E; --v5:#3E7CB1;
+  --font-display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;
+  --font-body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C141A; --surface:#141F27; --surface-2:#1A2731; --ink:#E7ECEF; --muted:#9AAAB5; --line:#273540;
+  --brand:#E3E9ED; --brand-ink:#0C141A; --accent:#D4AE66; --accent-soft:#2E2718;
+  --ok:#5CCB92; --ok-soft:#12301F; --ok-btn:#4CC38A; --ok-btn-ink:#06210F;
+  --warn:#E6A94A; --warn-soft:#33260F; --bad:#F08A7F; --bad-soft:#3A1C19; --info:#7FB2E0; --info-soft:#15283A;
+  --focus:#7FA8FF; --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C141A; --surface:#141F27; --surface-2:#1A2731; --ink:#E7ECEF; --muted:#9AAAB5; --line:#273540;
+  --brand:#E3E9ED; --brand-ink:#0C141A; --accent:#D4AE66; --accent-soft:#2E2718;
+  --ok:#5CCB92; --ok-soft:#12301F; --ok-btn:#4CC38A; --ok-btn-ink:#06210F;
+  --warn:#E6A94A; --warn-soft:#33260F; --bad:#F08A7F; --bad-soft:#3A1C19; --info:#7FB2E0; --info-soft:#15283A;
+  --focus:#7FA8FF; --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-display);margin:0;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* top bar */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--brand)}
+.top{background:var(--brand);color:var(--brand-ink);position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+.top .wrap{display:flex;align-items:center;gap:16px;padding-block:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto;min-width:0}
+.brand svg{flex:none}
+.brand b{font-family:var(--font-display);font-size:19px;letter-spacing:.01em;display:block;line-height:1.1}
+.brand small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-top:2px}
+.seg{display:flex;background:color-mix(in srgb,var(--brand-ink) 14%,transparent);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;color:inherit;padding:7px 14px;border-radius:8px;font-weight:600;font-size:13.5px;opacity:.8;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--brand-ink);color:var(--brand);opacity:1}
+.seg button .pv{font-size:10px;text-transform:uppercase;letter-spacing:.08em;margin-left:6px;opacity:.7}
+.who{display:flex;align-items:center;gap:10px;font-size:13px}
+.who .nm{font-weight:600;line-height:1.1}
+.who .rl{opacity:.7;font-size:11.5px}
+.ghost-top{border:1px solid color-mix(in srgb,var(--brand-ink) 40%,transparent);background:transparent;color:inherit;border-radius:8px;padding:6px 12px;font-size:13px;font-weight:600}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+
+/* venue nav */
+.venues{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--topH,64px));z-index:15}
+.venues .wrap{display:flex;gap:8px;overflow-x:auto;padding-block:10px;scrollbar-width:thin}
+.vbtn{flex:none;display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 12px;text-align:left;min-height:48px}
+.vbtn:hover{background:var(--surface-2)}
+.vbtn[aria-current="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.vbtn .dot{width:10px;height:10px;border-radius:50%;flex:none}
+.vbtn .vn{font-weight:700;font-size:13.5px;line-height:1.15;display:block;white-space:nowrap}
+.vbtn .vl{font-size:11.5px;opacity:.72;display:block;white-space:nowrap}
+.badge{min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}
+.vbtn[aria-current="true"] .badge{background:var(--brand-ink);color:var(--brand)}
+.badge.zero{background:transparent;color:var(--muted);font-weight:500}
+.vbtn[aria-current="true"] .badge.zero{color:var(--brand-ink);opacity:.6}
+
+main{padding-block:24px 64px}
+.pagehead{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.pagehead h1{font-size:28px;line-height:1.1}
+.pagehead p{margin:4px 0 0;color:var(--muted)}
+.pagehead .sp{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.notice{background:var(--info-soft);color:var(--info);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-weight:500}
+
+/* buttons */
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 16px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:8px;justify-content:center}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn.primary:hover{opacity:.9}
+.btn.ok{background:var(--ok-btn);color:var(--ok-btn-ink);border-color:var(--ok-btn)}
+.btn.ok:hover{opacity:.92}
+.btn.big{padding:13px 22px;font-size:16px;border-radius:12px;min-width:150px}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:8px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow);min-width:0}
+.kpi .l{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+.kpi .v{font-family:var(--font-display);font-size:32px;font-weight:700;line-height:1.1;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:14px;font-weight:600;color:var(--muted);margin-left:4px}
+.kpi.hot{border-color:var(--accent)}
+.kpi .s{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+.sect{display:flex;align-items:center;gap:10px;margin:26px 0 12px}
+.sect h2{font-size:19px}
+.sect .c{color:var(--muted);font-weight:600}
+
+/* venue overview */
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.vcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;display:block;width:100%}
+.vcard:hover{border-color:var(--accent)}
+.vcard .t{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px}
+.vcard .t i{width:9px;height:9px;border-radius:50%;flex:none}
+.vcard .l{font-size:12px;color:var(--muted);margin-left:17px}
+.vcard .a{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;font-variant-numeric:tabular-nums}
+.vcard .a b{font-family:var(--font-display);font-size:22px}
+.vcard .a span{font-size:12.5px;color:var(--muted)}
+.bar{height:4px;border-radius:2px;background:var(--line);margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+
+/* quote cards */
+.qlist{display:grid;gap:12px}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;box-shadow:var(--shadow)}
+.qcard.urgent{border-left:4px solid var(--bad)}
+.qmeta{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;font-size:12.5px;color:var(--muted)}
+.vtag{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--ink);font-size:12.5px}
+.vtag i{width:9px;height:9px;border-radius:50%}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill.pending{background:var(--warn-soft);color:var(--warn)}
+.pill.approved{background:var(--ok-soft);color:var(--ok)}
+.pill.paid{background:var(--info-soft);color:var(--info)}
+.pill.rejected{background:var(--bad-soft);color:var(--bad)}
+.pill.hr{background:var(--info-soft);color:var(--info)}
+.pill.changes{background:var(--accent-soft);color:var(--accent)}
+.pill.urgent{background:var(--bad);color:#fff}
+.qcard h3{font-size:20px;margin:8px 0 2px;line-height:1.2}
+.qcard .ttl{margin:0;font-weight:600}
+.qcard .desc{margin:6px 0 0;color:var(--muted);max-width:68ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.opn{background:none;border:0;padding:0;text-align:left;display:block;width:100%}
+.atts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+.att{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:12.5px;font-weight:600;background:var(--surface-2);color:var(--ink);text-decoration:none}
+.att:hover{border-color:var(--accent)}
+.thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;border:1px solid var(--line);cursor:zoom-in;background:var(--surface-2)}
+.qside{display:flex;flex-direction:column;align-items:flex-end;gap:10px;min-width:210px}
+.amt{font-family:var(--font-display);font-size:30px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.amt small{font-size:13px;color:var(--muted);font-weight:600;margin-right:4px}
+.cat{font-size:12.5px;color:var(--muted)}
+.acts{display:flex;flex-direction:column;gap:8px;width:100%}
+.acts .row2{display:flex;gap:8px}
+.acts .row2 .btn{flex:1}
+.qrow{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px 16px;align-items:center}
+.qrow .main{min-width:0}
+.qrow .sup{font-weight:700}
+.qrow .sub{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fb{grid-column:1/-1;background:var(--accent-soft);color:var(--ink);border-radius:8px;padding:8px 12px;font-size:13.5px}
+.fb b{color:var(--accent)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-weight:600;font-size:13.5px;display:inline-flex;gap:8px;align-items:center}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tab .n{opacity:.65;font-variant-numeric:tabular-nums}
+
+/* table */
+.tbl{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow-x:auto;box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;min-width:780px}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);font-weight:700;white-space:nowrap}
+td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+tfoot td{font-weight:700;background:var(--surface-2)}
+.ref{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:36px 20px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-family:var(--font-display);font-size:18px;margin-bottom:4px}
+
+/* overlay */
+#overlay{position:fixed;inset:0;z-index:50;background:rgba(8,14,19,.55);display:flex;justify-content:flex-end;padding:0}
+#overlay.center{justify-content:center;align-items:center;padding:16px}
+.sheet{background:var(--surface);width:min(560px,100%);height:100%;overflow-y:auto;padding:22px max(20px,env(safe-area-inset-right,0px)) 40px 22px;box-shadow:-10px 0 40px rgba(0,0,0,.25)}
+.center .sheet{height:auto;max-height:100%;border-radius:16px;width:min(540px,100%);padding:22px}
+.sheet h2{font-size:22px;margin-bottom:4px}
+.sheet .x{float:right;border:0;background:var(--surface-2);width:34px;height:34px;border-radius:50%;font-size:18px;line-height:1}
+.sheet .lead{color:var(--muted);margin:0 0 16px}
+.field{display:grid;gap:5px;margin-bottom:14px}
+.field label,.field .lb{font-weight:700;font-size:13px}
+.field .hint{font-weight:400;color:var(--muted)}
+.inp{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px}
+textarea.inp{min-height:84px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chk{display:flex;gap:10px;align-items:center;font-weight:600}
+.drop{border:1.5px dashed var(--line);border-radius:12px;padding:14px;background:var(--surface-2);display:grid;gap:8px}
+.flist{display:flex;flex-wrap:wrap;gap:8px}
+.fchip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:4px 6px 4px 10px;font-size:12.5px;font-weight:600}
+.fchip button{border:0;background:var(--surface-2);border-radius:50%;width:20px;height:20px;line-height:1}
+.err{color:var(--bad);font-weight:600;margin:8px 0 0}
+.foot{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.dl{display:grid;grid-template-columns:130px 1fr;gap:8px 12px;margin:16px 0}
+.dl dt{color:var(--muted);font-size:13px}
+.dl dd{margin:0;font-weight:600}
+.prev{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:8px}
+.prev img{width:100%;height:110px;object-fit:cover;border-radius:10px;border:1px solid var(--line);cursor:zoom-in}
+.tl{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:10px;border-left:2px solid var(--line);padding-left:16px}
+.tl li{font-size:13.5px;position:relative}
+.tl li::before{content:"";position:absolute;left:-22px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.tl .t{color:var(--muted);font-size:12px}
+#lightbox{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.85);display:grid;place-items:center;padding:20px}
+#lightbox img{max-width:100%;max-height:100%;border-radius:8px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:70;display:grid;gap:8px;justify-items:center}
+.toast{background:var(--ink);color:var(--bg);border-radius:12px;padding:11px 16px;font-weight:600;display:flex;gap:14px;align-items:center;box-shadow:0 8px 28px rgba(0,0,0,.3)}
+.toast button{background:none;border:0;color:var(--accent-soft);font-weight:700;padding:0;text-decoration:underline}
+.team{display:grid;gap:4px}
+.gate{max-width:520px;margin:60px auto;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px;text-align:center}
+.gate h1{font-size:24px;margin-bottom:8px}
+.gate p{color:var(--muted)}
+.skel{height:110px;border-radius:14px;background:linear-gradient(90deg,var(--surface),var(--surface-2),var(--surface));background-size:200% 100%;animation:sh 1.4s infinite;border:1px solid var(--line);margin-bottom:12px}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+@media (max-width:720px){
+  .qcard{grid-template-columns:1fr}
+  .qside{align-items:stretch;min-width:0}
+  .qside .amt{order:-1}
+  .qrow{grid-template-columns:1fr auto}
+  .qrow .pillcell{grid-column:1}
+  .two{grid-template-columns:1fr}
+  .pagehead h1{font-size:24px}
+  .dl{grid-template-columns:1fr}
+  .top .wrap{gap:10px}
+  .who .tx{display:none}
+}
+
+body{margin:0}
+[hidden]{display:none!important}
+.cred{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;display:grid;gap:8px}
+.cred pre{margin:0;white-space:pre-wrap;word-break:break-word;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;user-select:all}
+.urow{display:grid;grid-template-columns:minmax(0,1fr) 130px auto;gap:8px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.urow .uinfo{min-width:0;overflow-wrap:anywhere}
+.uacts{display:flex;gap:6px;flex-wrap:wrap}
+@media (max-width:720px){.urow{grid-template-columns:1fr}}
+.gate form .btn.big{min-width:0}
+</style>
+</head>
+<body>
+<header class="top" id="top">
+  <div class="wrap">
+    <div class="brand">
+      <!-- Crenellated mark: a creneau is the notch in a battlement -->
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="8" fill="currentColor" opacity=".14"/><path d="M6 27V13h5v4h4.5v-4h3v4H23v-4h5v14z" fill="currentColor"/><path d="M6 10h5v-3H6zM14 10h6V7h-6zM23 10h5V7h-5z" fill="#C9A45C"/></svg>
+      <div><b>Creneau Hospitality</b><small>Approvals</small></div>
+    </div>
+    <div class="seg" id="roleseg" role="group" aria-label="Switch view" hidden></div>
+    <div class="who" id="who"></div>
+  </div>
+</header>
+<nav class="venues" id="venuebar" aria-label="Restaurants" hidden><div class="wrap" id="venues"></div></nav>
+<main><div class="wrap" id="app"><div class="skel"></div><div class="skel"></div></div></main>
+<div id="overlay" hidden></div>
+<div id="lightbox" hidden></div>
+<div id="toast"></div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+const VENUES=[
+  {id:'mm-ar',name:'Maison Mathis',loc:'Arabian Ranches',c:'var(--v1)'},
+  {id:'cargo',name:'Cargo',loc:'Pier 7',c:'var(--v2)'},
+  {id:'lpb',name:'Le Petit Belge',loc:'Motor City',c:'var(--v3)'},
+  {id:'bbc',name:'Belgian Beer Cafe',loc:'Souk Madinat Jumeirah',c:'var(--v4)'},
+  {id:'mm-ds',name:'Maison Mathis',loc:'Dubai South',c:'var(--v5)'}
+];
+const VMAP=Object.fromEntries(VENUES.map(v=>[v.id,v]));
+const HR_TYPES=['New Hire','Promotion','VISA Renewal'];
+const STATUS={pending:'Awaiting approval',approved:'Approved',changes:'Changes requested',rejected:'Rejected',paid:'Paid'};
+const ROLE_LABEL={uploader:'Submit',approver:'Approve',finance:'Finance'};
+const ROLE_FULL={uploader:'Submitter',approver:'Approver',finance:'Finance'};
+
+
+const S={ready:false,profileReady:false,quotes:[],profile:null,user:null,owner:false,set:new Set(),tabsAvail:[],view:null,venue:'all',tab:{uploader:'all',finance:'topay'},names:{},sig:'',signedAt:0};
+let sb=null,live=null,poll=null;
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>new Intl.NumberFormat('en-AE',{minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(n)||0);
+const isHr=q=>q.kind==='hr';
+const head=q=>isHr(q)?(q.hrType||'HR request'):(q.title||q.supplier||'Quotation');
+const subline=q=>isHr(q)?(q.title||''):'';
+const money=q=>isHr(q)?'':`AED ${fmt(q.amount)}`;
+const kindLabel=q=>isHr(q)?'HR request':'Operational expense';
+const amtBlock=q=>isHr(q)?'<span class="pill hr">HR request</span>':`<div class="amt">${aed(q.amount)}</div>`;
+const lineOf=q=>[head(q),money(q)].filter(Boolean).join(' · ');
+const aed=n=>`<small>AED</small>${fmt(n)}`;
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+function ago(t){if(!t)return'';const m=Math.floor((Date.now()-t)/6e4);if(m<1)return'just now';if(m<60)return m+' min ago';const h=Math.floor(m/60);if(h<24)return h+' h ago';const d=Math.floor(h/24);return d+(d===1?' day ago':' days ago')}
+function dstr(t){return t?new Date(t).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):''}
+function dtstr(t){return t?new Date(t).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):''}
+const nameOf=id=>S.names[id]||'a team member';
+const ICON_DOC='<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 1.75h5.5L12.5 4.75v9.5H4z"/><path d="M9.5 1.75v3h3"/></svg>';
+const ICON_IMG='<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><circle cx="6" cy="7" r="1.2"/><path d="M3 12l3.5-3 2.5 2 2-1.5 2 2"/></svg>';
+
+
+/* ---------- roles ---------- */
+const ROLE_NAMES={admin:'Admin',approver:'Approver',finance:'Finance'};
+function computeRoles(){
+  const r=S.profile?.role,set=new Set();
+  if(r==='admin')set.add('uploader');
+  if(r==='approver')set.add('approver');
+  if(r==='finance')set.add('finance');
+  S.set=set;S.owner=r==='admin';
+  S.tabsAvail=S.owner?['approver','finance','uploader']:['approver','finance','uploader'].filter(x=>set.has(x));
+  if(!S.view||!S.tabsAvail.includes(S.view))S.view=S.owner?'uploader':S.tabsAvail[0];
+}
+const preview=()=>!S.set.has(S.view);
+const can=role=>S.set.has(role)&&S.view===role;
+
+
+/* ---------- data helpers ---------- */
+const inV=q=>S.venue==='all'||q.venueId===S.venue;
+const byStatus=(st,all=false)=>S.quotes.filter(q=>q.status===st&&(all||inV(q)));
+const sum=a=>a.reduce((s,q)=>s+(Number(q.amount)||0),0);
+function badgeFor(vid){
+  const qs=S.quotes.filter(q=>vid==='all'||q.venueId===vid);
+  if(S.view==='approver')return qs.filter(q=>q.status==='pending').length;
+  if(S.view==='finance')return qs.filter(q=>q.status==='approved'||q.status==='paid').length;
+  return qs.filter(q=>q.status==='pending'||q.status==='changes').length;
+}
+const badgeTitle=()=>S.view==='approver'?'awaiting approval':S.view==='finance'?'approved':'open items';
+function toast(msg,undo){
+  const el=document.createElement('div');el.className='toast';el.setAttribute('role','status');
+  el.innerHTML=`<span>${esc(msg)}</span>`;
+  if(undo){const b=document.createElement('button');b.textContent='Undo';b.onclick=()=>{el.remove();undo()};el.appendChild(b)}
+  $('#toast').appendChild(el);setTimeout(()=>el.remove(),undo?9000:4000);
+}
+async function run(fn,okMsg){
+  try{await fn();if(okMsg)toast(okMsg)}catch(e){toast('That did not save: '+(e?.message||'please try again.'))}
+}
+
+
+/* ---------- data ---------- */
+function fromRow(r){
+  const files=r.files||[];
+  let qi=files.findIndex(f=>f.type==='application/pdf');if(qi<0&&files.length)qi=0;
+  return {id:r.id,ref:r.ref,kind:r.kind,venueId:r.venue_id,title:r.title,description:r.description,hrType:r.hr_type,amount:r.amount,
+    category:r.kind==='hr'?'HR request':'Operational expense',status:r.status,comment:r.comment,
+    createdAt:Date.parse(r.created_at),updatedAt:Date.parse(r.updated_at),createdBy:r.created_by,createdByName:r.created_by_name,
+    decidedAt:r.decided_at?Date.parse(r.decided_at):null,decidedBy:r.decided_by,decidedByName:r.decided_by_name,
+    history:(r.history||[]).map(h=>({t:h.t,by:h.by,byName:h.by_name,a:h.a,n:h.n})),
+    quotation:qi>=0?files[qi]:null,images:files.filter((_,i)=>i!==qi)};
+}
+async function load(force){
+  const {data,error}=await sb.from('requests').select('*').order('created_at',{ascending:false}).limit(1000);
+  if(error){if(!S.ready){S.ready=true;render();toast('Could not load requests: '+error.message)}return}
+  const sig=data.map(r=>r.id+r.updated_at).join('|');
+  if(!force&&sig===S.sig&&Date.now()-S.signedAt<45*60e3&&S.ready)return;
+  const paths=[...new Set(data.flatMap(r=>(r.files||[]).map(f=>f.path)))];
+  const urlOf={};
+  if(paths.length){const {data:su}=await sb.storage.from('request-files').createSignedUrls(paths,3600);(su||[]).forEach(x=>{if(x.signedUrl)urlOf[x.path]=x.signedUrl})}
+  S.quotes=data.map(r=>fromRow({...r,files:(r.files||[]).map(f=>({...f,url:urlOf[f.path]||''}))}));
+  S.sig=sig;S.signedAt=Date.now();S.ready=true;render();
+}
+function startLive(){
+  stopLive();
+  live=sb.channel('requests-feed').on('postgres_changes',{event:'*',schema:'public',table:'requests'},()=>load(false)).subscribe();
+  poll=setInterval(()=>load(false),30000);
+}
+function stopLive(){if(live){sb.removeChannel(live);live=null}if(poll){clearInterval(poll);poll=null}}
+
+/* ---------- actions ---------- */
+async function rpcDecide(id,status,comment){const {error}=await sb.rpc('decide_request',{p_id:id,p_status:status,p_comment:comment||null});if(error)throw error;await load(true)}
+function approve(id){
+  const q=S.quotes.find(x=>x.id===id);if(!q||!can('approver'))return;
+  run(async()=>{
+    await rpcDecide(id,'approved');
+    toast(`Approved: ${head(q)}`,()=>run(()=>rpcDecide(id,'pending'),'Moved back to awaiting approval'));
+  });
+}
+function askReason(id,kind){
+  const q=S.quotes.find(x=>x.id===id);if(!q)return;
+  const rej=kind==='rejected';
+  openModal(`<button class="x" data-close aria-label="Close">&times;</button>
+    <h2>${rej?'Reject':'Ask for changes'}</h2>
+    <p class="lead">${esc(lineOf(q))} &middot; ${esc(VMAP[q.venueId]?.name||'')} ${esc(VMAP[q.venueId]?.loc||'')}</p>
+    <div class="field"><label for="rs">${rej?'Reason for rejecting':'What should Dries change or clarify?'}</label><textarea id="rs" class="inp" placeholder="${rej?'e.g. Budget not available this quarter':'e.g. Get a second quote from another supplier'}"></textarea></div>
+    <p class="err" id="rerr" hidden>Please add a short note so Dries knows what to do next.</p>
+    <div class="foot"><button class="btn" data-close>Cancel</button><button class="btn ${rej?'danger':'primary'}" id="rgo">${rej?'Reject request':'Send back'}</button></div>`,true);
+  $('#rs').focus();
+  $('#rgo').onclick=()=>{
+    const v=$('#rs').value.trim();if(!v){$('#rerr').hidden=false;return}
+    closeModal();
+    run(()=>rpcDecide(id,kind,v),rej?'Rejected':'Sent back to Dries');
+  };
+}
+function askWithdraw(id){
+  const q=S.quotes.find(x=>x.id===id);if(!q)return;
+  openModal(`<button class="x" data-close aria-label="Close">&times;</button><h2>Withdraw this request?</h2>
+    <p class="lead">${esc(head(q))} will be removed from the approval queue.</p>
+    <div class="foot"><button class="btn" data-close>Keep it</button><button class="btn danger" id="wgo">Withdraw</button></div>`,true);
+  $('#wgo').onclick=()=>{closeModal();run(async()=>{const {error}=await sb.from('requests').delete().eq('id',id);if(error)throw error;await load(true)},'Request withdrawn')};
+}
+
+
+/* ---------- overlay ---------- */
+function openModal(html,center){
+  const o=$('#overlay');o.className=center?'center':'';o.hidden=false;
+  o.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  o.onclick=e=>{if(e.target===o||e.target.closest('[data-close]'))closeModal()};
+  document.body.style.overflow='hidden';
+}
+function closeModal(){const o=$('#overlay');o.hidden=true;o.innerHTML='';S.openId=null;document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#lightbox').hidden)$('#lightbox').hidden=true;else if(!$('#overlay').hidden)closeModal()}});
+function lightbox(url){const l=$('#lightbox');l.innerHTML=`<img src="${esc(url)}" alt="Attachment preview">`;l.hidden=false;l.onclick=()=>{l.hidden=true}}
+document.addEventListener('click',e=>{const t=e.target.closest('[data-zoom]');if(t){e.preventDefault();lightbox(t.dataset.zoom)}});
+
+
+/* ---------- detail ---------- */
+function attHtml(q,big){
+  const f=[];
+  if(q.quotation)f.push(q.quotation);
+  const imgs=(q.images||[]);
+  if(big){
+    let h='';
+    if(q.quotation){h+=`<div class="atts"><a class="att" href="${esc(q.quotation.url)}" target="_blank" rel="noopener">${ICON_DOC} Open ${isHr(q)?'document':'quotation'}: ${esc(q.quotation.name)}</a></div>`;
+      if((q.quotation.type||'').startsWith('image/'))h+=`<div class="prev"><img src="${esc(q.quotation.url)}" data-zoom="${esc(q.quotation.url)}" alt="Quotation"></div>`}
+    if(imgs.length)h+=`<div class="prev">${imgs.map(i=>`<img src="${esc(i.url)}" data-zoom="${esc(i.url)}" alt="${esc(i.name)}">`).join('')}</div>`;
+    return h||'<p class="lead">No files attached.</p>';
+  }
+  let h='<div class="atts">';
+  if(q.quotation){const isImg=(q.quotation.type||'').startsWith('image/');h+=`<a class="att" href="${esc(q.quotation.url)}" target="_blank" rel="noopener">${isImg?ICON_IMG:ICON_DOC} ${isHr(q)?'Document':'Quotation'}</a>`}
+  imgs.slice(0,4).forEach(i=>{h+=`<img class="thumb" src="${esc(i.url)}" data-zoom="${esc(i.url)}" alt="${esc(i.name)}">`});
+  if(imgs.length>4)h+=`<span class="cat">+${imgs.length-4} more</span>`;
+  return h+'</div>';
+}
+function actionsFor(q,full){
+  let h='';
+  if(q.status==='pending'&&S.view==='approver'){
+    const d=can('approver')?'':' disabled title="Preview only. Add the approver under Team access to switch this on."';
+    h=`<div class="acts"><button class="btn ok big" data-act="approve" data-id="${q.id}"${d}>Approve</button>
+    <div class="row2"><button class="btn sm" data-act="changes" data-id="${q.id}"${d}>Ask for changes</button><button class="btn sm danger" data-act="reject" data-id="${q.id}"${d}>Reject</button></div></div>`;
+  }else if(can('uploader')){
+    if(q.status==='changes'||q.status==='rejected')h=`<div class="acts"><button class="btn primary" data-act="edit" data-id="${q.id}">Edit and resubmit</button></div>`;
+    else if(q.status==='pending')h=`<div class="acts"><button class="btn sm" data-act="edit" data-id="${q.id}">Edit</button> <button class="btn sm danger" data-act="withdraw" data-id="${q.id}">Withdraw</button></div>`;
+  }
+  return h;
+}
+function openDetail(id){
+  const q=S.quotes.find(x=>x.id===id);if(!q)return;
+  S.openId=id;const v=VMAP[q.venueId]||{name:'Unknown venue',loc:'',c:'var(--muted)'};
+  const hist=(q.history||[]).map(h=>`<li><b>${esc(h.a[0].toUpperCase()+h.a.slice(1))}</b> by ${esc(h.byName||'a team member')}${h.n?`<br>${esc(h.n)}`:''}<div class="t">${dtstr(h.t)}</div></li>`).join('');
+  openModal(`<button class="x" data-close aria-label="Close">&times;</button>
+    <div class="qmeta"><span class="vtag"><i style="background:${v.c}"></i>${esc(v.name)} &middot; ${esc(v.loc)}</span><span class="ref">${esc(q.ref||'')}</span>${isHr(q)?'<span class="pill hr">HR request</span>':''}<span class="pill ${q.status}">${STATUS[q.status]}</span></div>
+    <h2 style="margin-top:10px">${esc(head(q))}</h2>
+    ${subline(q)?`<p class="lead" style="margin-bottom:0">${esc(subline(q))}</p>`:''}
+    ${isHr(q)?'':`<div class="amt" style="margin:14px 0">${aed(q.amount)}</div>`}
+    ${q.comment&&(q.status==='changes'||q.status==='rejected')?`<div class="fb"><b>${q.status==='rejected'?'Rejected':'Changes requested'}:</b> ${esc(q.comment)}</div>`:''}
+    <dl class="dl"><dt>Type</dt><dd>${esc(kindLabel(q))}</dd>
+      <dt>Submitted</dt><dd>${dstr(q.createdAt)} by ${esc(q.createdByName||'a team member')}</dd>
+      ${q.decidedAt&&q.status!=='pending'?`<dt>Decision</dt><dd>${dstr(q.decidedAt)} by ${esc(q.decidedByName||'a team member')}</dd>`:''}</dl>
+    ${q.description?`<div class="field"><span class="lb">Details</span><div style="white-space:pre-wrap">${esc(q.description)}</div></div>`:''}
+    <div class="field"><span class="lb">Documents</span>${attHtml(q,true)}</div>
+    ${actionsFor(q,true)}
+    <div class="sect" style="margin-top:22px"><h2 style="font-size:16px">History</h2></div><ul class="tl">${hist||'<li>No activity yet.</li>'}</ul>`);
+}
+
+
+/* ---------- form ---------- */
+function openForm(id){
+  const q=id?S.quotes.find(x=>x.id===id):null;
+  const st={kind:q?.kind||'opex',hrType:q?.hrType||'',files:[],kept:q?[q.quotation,...(q.images||[])].filter(Boolean):[]};
+  const vopts=VENUES.map(v=>`<option value="${v.id}" ${((q?.venueId||(S.venue!=='all'?S.venue:''))===v.id)?'selected':''}>${esc(v.name)} - ${esc(v.loc)}</option>`).join('');
+  openModal(`<button class="x" data-close aria-label="Close">&times;</button>
+    <h2>${q?'Edit request':'New request'}</h2>
+    <p class="lead">${q&&(q.status==='changes'||q.status==='rejected')?'Update the details and resubmit for approval.':'It goes straight to Mr. Rashid\'s approval queue.'}</p>
+    <form id="qf" novalidate>
+    <div class="field"><span class="lb">Type of request</span><div class="tabs" style="margin:0" id="kindtabs">
+      <button type="button" class="tab" data-kind="opex">Operational expense</button><button type="button" class="tab" data-kind="hr">HR request</button></div></div>
+    <div class="field"><label for="f-v">Restaurant</label><select id="f-v" class="inp"><option value="">Choose a restaurant</option>${vopts}</select></div>
+    <div class="field" id="amtbox"><label for="f-a">Amount (AED)</label><input id="f-a" class="inp num" inputmode="decimal" value="${q&&!isHr(q)?esc(q.amount):''}" placeholder="0.00"></div>
+    <div class="field" id="hrbox"><span class="lb">HR request</span><div class="tabs" style="margin:0" id="hrtabs">${HR_TYPES.map(t=>`<button type="button" class="tab" data-hr="${esc(t)}">${esc(t)}</button>`).join('')}</div></div>
+    <div class="field"><label for="f-t" id="f-tl">What is it for?</label><input id="f-t" class="inp" value="${esc(q?.title||'')}"></div>
+    <div class="field"><label for="f-d">Details <span class="hint">(optional)</span></label><textarea id="f-d" class="inp">${esc(q?.description||'')}</textarea></div>
+    <div class="field"><span class="lb" id="f-fl">Quotation</span>
+      <div class="drop"><div class="flist" id="fl"></div><input type="file" id="f-f" accept="application/pdf,image/*" multiple aria-label="Attach files"></div></div>
+    <p class="err" id="ferr" hidden></p>
+    <div class="foot"><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary" id="fgo">${q?'Resubmit for approval':'Submit for approval'}</button></div>
+    </form>`);
+  const drawFiles=()=>{
+    const box=$('#fl');box.innerHTML='';
+    const add=(f,kind,i)=>{const c=document.createElement('span');c.className='fchip';const t=document.createElement('span');t.textContent=f.name;const x=document.createElement('button');x.type='button';x.textContent='\u00d7';x.setAttribute('aria-label','Remove '+f.name);x.onclick=()=>{st[kind].splice(i,1);drawFiles()};c.append(t,x);box.appendChild(c)};
+    st.kept.forEach((f,i)=>add(f,'kept',i));st.files.forEach((f,i)=>add(f,'files',i));
+    if(!st.kept.length&&!st.files.length){const n=document.createElement('span');n.className='cat';n.textContent='No files added';box.appendChild(n)}
+  };
+  const sync=()=>{
+    const hr=st.kind==='hr';
+    document.querySelectorAll('[data-kind]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.kind===st.kind)));
+    document.querySelectorAll('[data-hr]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.hr===st.hrType)));
+    $('#amtbox').hidden=hr;$('#hrbox').hidden=!hr;
+    $('#f-tl').textContent=hr?'Employee name or position':'What is it for?';
+    $('#f-t').placeholder=hr?'e.g. Sous chef, Cargo Pier 7':'e.g. Replacement walk-in chiller compressor';
+    $('#f-fl').innerHTML=hr?'Supporting documents <span class="hint">(optional)</span>':'Quotation <span class="hint">(PDF or photos)</span>';
+  };
+  sync();drawFiles();
+  $('#kindtabs').onclick=e=>{const b=e.target.closest('[data-kind]');if(b){st.kind=b.dataset.kind;sync()}};
+  $('#hrtabs').onclick=e=>{const b=e.target.closest('[data-hr]');if(b){st.hrType=b.dataset.hr;sync()}};
+  $('#f-f').onchange=e=>{st.files.push(...e.target.files);e.target.value='';drawFiles()};
+  $('#qf').onsubmit=async e=>{
+    e.preventDefault();
+    const err=m=>{const el=$('#ferr');el.textContent=m;el.hidden=false};
+    const hr=st.kind==='hr';
+    const v=$('#f-v').value,ttl=$('#f-t').value.trim(),amt=parseFloat($('#f-a').value.replace(/,/g,''));
+    if(!v)return err('Choose which restaurant this is for.');
+    if(hr&&!st.hrType)return err('Choose the type of HR request.');
+    if(!hr&&!(amt>0))return err('Enter the amount in AED.');
+    if(!ttl)return err(hr?'Add the employee name or position.':'Say briefly what it is for.');
+    if(!hr&&!st.kept.length&&!st.files.length)return err('Attach the quotation (PDF or photo).');
+    const go=$('#fgo');go.disabled=true;
+    try{
+      const n=st.files.length,uploaded=[];
+      for(let i=0;i<n;i++){
+        const f=st.files[i];go.textContent=`Uploading ${i+1} of ${n}...`;
+        if(f.size>20*1024*1024)throw new Error(f.name+' is over the 20 MB limit.');
+        const safe=f.name.replace(/[^\w.\-]+/g,'_');const path=`${S.user.id}/${crypto.randomUUID()}-${safe}`;
+        const {error}=await sb.storage.from('request-files').upload(path,f,{contentType:f.type||'application/octet-stream'});
+        if(error)throw error;
+        uploaded.push({path,name:f.name,type:f.type,size:f.size});
+      }
+      const all=[...st.kept,...uploaded];
+      let qi=all.findIndex(f=>f.type==='application/pdf');if(qi<0)qi=0;
+      const files=(all.length?[all[qi],...all.filter((_,i)=>i!==qi)]:[]).map(f=>({path:f.path,name:f.name,type:f.type,size:f.size}));
+      go.textContent='Saving...';
+      const me=S.profile,who=me.full_name||me.email,entry=a=>({t:Date.now(),by:S.user.id,by_name:who,a,n:''});
+      const cols={kind:st.kind,venue_id:v,title:ttl,description:$('#f-d').value.trim()||null,hr_type:hr?st.hrType:null,amount:hr?null:Math.round(amt*100)/100,files};
+      if(q){
+        const hist=(q.history||[]).map(h=>({t:h.t,by:h.by,by_name:h.byName,a:h.a,n:h.n}));
+        const {error}=await sb.from('requests').update({...cols,status:'pending',comment:null,decided_at:null,decided_by:null,decided_by_name:null,history:[...hist,entry(q.status==='pending'?'edited':'resubmitted')]}).eq('id',q.id);
+        if(error)throw error;
+      }else{
+        const ref=(hr?'HR-':'CQ-')+new Date().toISOString().slice(2,7).replace('-','')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
+        const {error}=await sb.from('requests').insert({...cols,ref,created_by_name:who,history:[entry('submitted')]});
+        if(error)throw error;
+      }
+      await load(true);
+      closeModal();toast(q?'Resubmitted for approval':'Submitted for approval');
+    }catch(ex){go.disabled=false;go.textContent=q?'Resubmit for approval':'Submit for approval';err('Could not save: '+(ex?.message||'please try again.'))}
+  };
+}
+
+
+/* ---------- team ---------- */
+async function adminCall(body){
+  const {data,error}=await sb.functions.invoke('admin-users',{body});
+  if(error){let m=error.message;try{const j=await error.context.json();if(j?.error)m=j.error}catch(e){}throw new Error(m)}
+  if(data?.error)throw new Error(data.error);
+  return data;
+}
+function genPassword(){
+  const chars='abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';const a=new Uint32Array(12);crypto.getRandomValues(a);
+  return [...a].map(n=>chars[n%chars.length]).join('');
+}
+function showCreds(name,email,pw,heading){
+  const site=location.origin+location.pathname.replace(/index\.html$/,'');
+  const text=`Creneau Approvals\nSign in: ${site}\nEmail: ${email}\nPassword: ${pw}`;
+  const box=$('#n-done');box.innerHTML='';
+  const d=document.createElement('div');d.className='cred';
+  const h=document.createElement('b');h.textContent=heading+' '+name;
+  const p=document.createElement('pre');p.textContent=text;
+  const b=document.createElement('button');b.type='button';b.className='btn sm';b.textContent='Copy details';
+  b.onclick=()=>{navigator.clipboard.writeText(text).then(()=>toast('Copied')).catch(()=>{const r=document.createRange();r.selectNodeContents(p);const s=getSelection();s.removeAllRanges();s.addRange(r)})};
+  const n=document.createElement('div');n.className='cat';n.textContent='Share these with '+name+'. They can change the password after signing in. This is the only time the password is shown.';
+  d.append(h,p,b,n);box.appendChild(d);
+}
+async function drawUsers(){
+  const list=$('#tm-list');if(!list)return;
+  try{
+    const {users,me}=await adminCall({action:'list'});
+    list.innerHTML='';
+    users.forEach(u=>{
+      const row=document.createElement('div');row.className='urow';
+      const info=document.createElement('div');info.className='uinfo';
+      const nm=document.createElement('b');nm.textContent=u.full_name||u.email;
+      const em=document.createElement('div');em.className='ref';em.textContent=u.email;
+      info.append(nm,em);
+      const sel=document.createElement('select');sel.className='inp';sel.setAttribute('aria-label','Role for '+(u.full_name||u.email));
+      Object.entries(ROLE_NAMES).forEach(([k,l])=>{const o=document.createElement('option');o.value=k;o.textContent=l;if(u.role===k)o.selected=true;sel.appendChild(o)});
+      sel.disabled=u.id===me;
+      sel.onchange=()=>run(async()=>{await adminCall({action:'set_role',id:u.id,role:sel.value})},'Role updated');
+      const acts=document.createElement('div');acts.className='uacts';
+      const rp=document.createElement('button');rp.type='button';rp.className='btn sm';rp.textContent='New password';
+      rp.onclick=()=>run(async()=>{const pw=genPassword();await adminCall({action:'reset_password',id:u.id,password:pw});showCreds(u.full_name||u.email,u.email,pw,'New password for')});
+      acts.appendChild(rp);
+      if(u.id!==me){
+        const rm=document.createElement('button');rm.type='button';rm.className='btn sm danger';rm.textContent='Remove';
+        rm.onclick=()=>{if(rm.dataset.sure){run(async()=>{await adminCall({action:'delete',id:u.id});await drawUsers()},'Login removed')}else{rm.dataset.sure='1';rm.textContent='Confirm remove';setTimeout(()=>{delete rm.dataset.sure;rm.textContent='Remove'},4000)}};
+        acts.appendChild(rm);
+      }
+      row.append(info,sel,acts);list.appendChild(row);
+    });
+  }catch(e){list.textContent='Could not load the team: '+e.message+'. Check that the admin-users function is deployed.'}
+}
+function openTeam(){
+  openModal(`<button class="x" data-close aria-label="Close">&times;</button><h2>Team logins</h2>
+   <p class="lead">Create a login for each person and share the email and password with them.</p>
+   <div id="tm-list" class="team"><span class="cat">Loading...</span></div>
+   <div class="sect" style="margin-top:22px"><h2 style="font-size:16px">Add a person</h2></div>
+   <div class="two"><div class="field"><label for="n-name">Full name</label><input id="n-name" class="inp" autocomplete="off"></div>
+   <div class="field"><label for="n-role">Role</label><select id="n-role" class="inp"><option value="approver">Approver</option><option value="finance">Finance</option><option value="admin">Admin (submits requests)</option></select></div></div>
+   <div class="field"><label for="n-email">Email</label><input id="n-email" type="email" class="inp" autocomplete="off"></div>
+   <div class="field"><label for="n-pw">Password <span class="hint">(at least 8 characters)</span></label><div style="display:flex;gap:8px"><input id="n-pw" class="inp" autocomplete="new-password"><button type="button" class="btn" id="n-gen">Generate</button></div></div>
+   <p class="err" id="n-err" hidden></p><div id="n-done"></div>
+   <div class="foot"><button class="btn" data-close>Close</button><button class="btn primary" id="n-go">Create login</button></div>`,true);
+  drawUsers();
+  $('#n-pw').value=genPassword();
+  $('#n-gen').onclick=()=>{$('#n-pw').value=genPassword()};
+  $('#n-go').onclick=async()=>{
+    const name=$('#n-name').value.trim(),email=$('#n-email').value.trim().toLowerCase(),pw=$('#n-pw').value,role=$('#n-role').value;
+    const err=$('#n-err');err.hidden=true;const go=$('#n-go');go.disabled=true;
+    try{
+      await adminCall({action:'create',full_name:name,email,password:pw,role});
+      showCreds(name,email,pw,'Login created for');
+      $('#n-name').value='';$('#n-email').value='';$('#n-pw').value=genPassword();
+      await drawUsers();
+    }catch(e){err.textContent=e.message;err.hidden=false}
+    go.disabled=false;
+  };
+}
+function openPassword(){
+  openModal(`<button class="x" data-close aria-label="Close">&times;</button><h2>Change password</h2>
+    <p class="lead">Choose a new password for ${esc(S.user.email)}.</p>
+    <div class="field"><label for="p1">New password <span class="hint">(at least 8 characters)</span></label><input id="p1" type="password" class="inp" autocomplete="new-password"></div>
+    <div class="field"><label for="p2">Repeat new password</label><input id="p2" type="password" class="inp" autocomplete="new-password"></div>
+    <p class="err" id="perr" hidden></p>
+    <div class="foot"><button class="btn" data-close>Cancel</button><button class="btn primary" id="pgo">Save password</button></div>`,true);
+  $('#pgo').onclick=async()=>{
+    const a=$('#p1').value,b=$('#p2').value,err=$('#perr');
+    if(a.length<8){err.textContent='Use at least 8 characters.';err.hidden=false;return}
+    if(a!==b){err.textContent='The two passwords do not match.';err.hidden=false;return}
+    const {error}=await sb.auth.updateUser({password:a});
+    if(error){err.textContent=error.message;err.hidden=false;return}
+    closeModal();toast('Password changed');
+  };
+}
+
+
+/* ---------- views ---------- */
+function qCard(q){
+  const v=VMAP[q.venueId]||{name:'Unknown venue',loc:'',c:'var(--muted)'};
+  return `<article class="qcard ${q.urgent?'urgent':''}">
+    <div style="min-width:0">
+      <div class="qmeta"><span class="vtag"><i style="background:${v.c}"></i>${esc(v.name)} &middot; ${esc(v.loc)}</span><span class="ref">${esc(q.ref||'')}</span><span>${ago(q.createdAt)}</span></div>
+      <button class="opn" data-open="${q.id}" aria-label="Open ${esc(head(q))}"><h3>${esc(head(q))}</h3>${subline(q)?`<p class="ttl">${esc(subline(q))}</p>`:''}${q.description?`<p class="desc">${esc(q.description)}</p>`:''}</button>
+      ${attHtml(q)}
+    </div>
+    <div class="qside">${amtBlock(q)}${isHr(q)?'':`<div class="cat">${esc(kindLabel(q))}</div>`}${actionsFor(q)}</div>
+  </article>`;
+}
+function qRow(q,withActs){
+  const v=VMAP[q.venueId]||{name:'Unknown venue',loc:'',c:'var(--muted)'};
+  return `<div class="qrow"><div class="main"><div class="qmeta"><span class="vtag"><i style="background:${v.c}"></i>${esc(v.name)} &middot; ${esc(v.loc)}</span><span class="ref">${esc(q.ref||'')}</span><span>${ago(q.updatedAt||q.createdAt)}</span></div>
+    <button class="opn" data-open="${q.id}"><div class="sup">${esc(head(q))}</div><div class="sub">${esc(subline(q)||kindLabel(q))}</div></button></div>
+    <div class="pillcell"><span class="pill ${q.status==='paid'?'approved':q.status}">${STATUS[q.status==='paid'?'approved':q.status]}</span></div>
+    <div style="text-align:right">${isHr(q)?'<span class="pill hr">HR request</span>':`<div class="amt" style="font-size:20px">${aed(q.amount)}</div>`}${withActs?actionsFor(q):''}</div>
+    ${q.comment&&(q.status==='changes'||q.status==='rejected')?`<div class="fb"><b>${q.status==='rejected'?'Rejected':'Mr. Rashid asks'}:</b> ${esc(q.comment)}</div>`:''}</div>`;
+}
+function empty(t,s){return `<div class="empty"><b>${esc(t)}</b>${esc(s)}</div>`}
+
+function viewApprover(){
+  const pend=byStatus('pending').sort((a,b)=>(b.urgent?1:0)-(a.urgent?1:0)||a.createdAt-b.createdAt);
+  const vn=S.venue==='all'?'all five restaurants':`${VMAP[S.venue].name} ${VMAP[S.venue].loc}`;
+  let h=`<div class="pagehead"><div><h1>Pending approvals</h1><p>${pend.length} ${pend.length===1?'request':'requests'} waiting for a decision at ${esc(vn)}.</p></div></div>`;
+  h+=pend.length?`<div class="qlist">${pend.map(qCard).join('')}</div>`:empty('Nothing waiting','New quotations from Dries appear here the moment they are submitted.');
+  return h;
+}
+function viewUploader(){
+  const mine=S.quotes.filter(inV);
+  const tabs=[['all','All',mine.length],['pending','Awaiting approval',mine.filter(q=>q.status==='pending').length],['changes','Changes requested',mine.filter(q=>q.status==='changes').length],['approved','Approved',mine.filter(q=>q.status==='approved'||q.status==='paid').length],['rejected','Rejected',mine.filter(q=>q.status==='rejected').length]];
+  const t=S.tab.uploader;const list=mine.filter(q=>t==='all'||q.status===t||(t==='approved'&&q.status==='paid')).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  const vn=S.venue==='all'?'all restaurants':`${VMAP[S.venue].name} ${VMAP[S.venue].loc}`;
+  let h=`<div class="pagehead"><div><h1>My requests</h1><p>Submissions for ${esc(vn)} and where they stand.</p></div>
+    <div class="sp">${S.owner?'<button class="btn" data-act="team">Team logins</button>':''}${can('uploader')?'<button class="btn primary" data-act="new">New request</button>':''}</div></div>
+    <div class="tabs">${tabs.map(([k,l,n])=>`<button class="tab" data-tab="uploader:${k}" aria-pressed="${t===k}">${l} <span class="n">${n}</span></button>`).join('')}</div>`;
+  h+=list.length?`<div class="qlist">${list.map(q=>qRow(q,true)).join('')}</div>`:empty(t==='all'?'No quotations yet':'Nothing here','Choose New request to send the first one for approval.');
+  return h;
+}
+function approvedList(){return S.quotes.filter(q=>(q.status==='approved'||q.status==='paid')&&inV(q)).sort((a,b)=>(b.decidedAt||0)-(a.decidedAt||0))}
+function viewFinance(){
+  const list=approvedList();
+  const vn=S.venue==='all'?'all restaurants':`${VMAP[S.venue].name} ${VMAP[S.venue].loc}`;
+  let h=`<div class="pagehead"><div><h1>Approved requests</h1><p>${list.length} ${list.length===1?'request':'requests'} approved by Mr. Rashid for ${esc(vn)}.</p></div>
+    <div class="sp"><button class="btn" data-act="export">Export CSV</button></div></div>`;
+  if(!list.length)return h+empty('Nothing approved yet','Requests appear here as soon as Mr. Rashid approves them.');
+  h+=`<div class="tbl"><table><thead><tr><th>Approved</th><th>Restaurant</th><th>Request</th><th>Type</th><th>Documents</th><th class="r">Amount (AED)</th></tr></thead><tbody>${list.map(q=>{
+    const v=VMAP[q.venueId]||{name:'Unknown',loc:'',c:'var(--muted)'};
+    return `<tr><td class="num">${dstr(q.decidedAt)}<div class="ref">${esc(q.decidedByName||'')}</div></td>
+    <td><span class="vtag"><i style="background:${v.c}"></i>${esc(v.name)}</span><div class="ref">${esc(v.loc)}</div></td>
+    <td><button class="opn" data-open="${q.id}" style="font-weight:700">${esc(head(q))}</button><div class="ref">${esc(subline(q)||q.ref||'')}</div></td>
+    <td>${isHr(q)?'<span class="pill hr">HR request</span>':'Operational expense'}</td>
+    <td>${q.quotation?`<a class="att" href="${esc(q.quotation.url)}" target="_blank" rel="noopener">${ICON_DOC} ${isHr(q)?'Document':'Quotation'}</a>`:''}</td>
+    <td class="r num" style="font-weight:700">${isHr(q)?'&ndash;':fmt(q.amount)}</td></tr>`}).join('')}</tbody>
+    <tfoot><tr><td colspan="5">Total of expenses (${list.filter(q=>!isHr(q)).length})</td><td class="r num">${fmt(sum(list.filter(q=>!isHr(q))))}</td></tr></tfoot></table></div>`;
+  return h;
+}
+function exportCsv(){
+  const list=approvedList();
+  const cell=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  const rows=[['Reference','Type','HR request type','Restaurant','Location','Request','Details','Amount AED','Approved on']];
+  list.forEach(q=>{const v=VMAP[q.venueId]||{};rows.push([q.ref,kindLabel(q),q.hrType||'',v.name,v.loc,isHr(q)?q.title:head(q),q.description||'',isHr(q)?'':q.amount,q.decidedAt?new Date(q.decidedAt).toISOString().slice(0,10):'']);});
+  const csv='\ufeff'+rows.map(r=>r.map(cell).join(',')).join('\n');
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  const el=document.createElement('a');el.href=url;el.download=`creneau-approved-requests-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+
+
+/* ---------- render ---------- */
+function loginView(){
+  return `<div class="gate"><h1>Sign in</h1><p>Creneau Hospitality approvals</p>
+    <form id="lf" style="text-align:left">
+      <div class="field"><label for="l-e">Email</label><input id="l-e" type="email" class="inp" autocomplete="username" required></div>
+      <div class="field"><label for="l-p">Password</label><input id="l-p" type="password" class="inp" autocomplete="current-password" required></div>
+      <p class="err" id="l-err" hidden></p>
+      <button class="btn primary big" id="l-go" style="width:100%;margin-top:6px">Sign in</button>
+    </form></div>`;
+}
+function bindLogin(){
+  const f=$('#lf');if(!f)return;
+  f.onsubmit=async e=>{
+    e.preventDefault();const go=$('#l-go'),err=$('#l-err');err.hidden=true;go.disabled=true;go.textContent='Signing in...';
+    const {error}=await sb.auth.signInWithPassword({email:$('#l-e').value.trim(),password:$('#l-p').value});
+    if(error){err.textContent=/invalid/i.test(error.message)?'That email or password is not right.':error.message;err.hidden=false;go.disabled=false;go.textContent='Sign in'}
+  };
+}
+function render(){
+  const who=$('#who'),seg=$('#roleseg'),vb=$('#venuebar'),app=$('#app');
+  if(!S.user){
+    if($('#lf'))return;
+    who.innerHTML='';seg.hidden=true;vb.hidden=true;app.innerHTML=loginView();bindLogin();return;
+  }
+  const nm=S.profile?.full_name||S.user.email||'You';
+  who.innerHTML=`<div class="avatar" aria-hidden="true">${esc(nm.trim()[0]?.toUpperCase()||'Y')}</div><div class="tx"><div class="nm">${esc(nm)}</div><div class="rl">${esc(ROLE_NAMES[S.profile?.role]||'No role yet')}</div></div><button class="ghost-top" data-act="password">Password</button><button class="ghost-top" data-act="signout">Sign out</button>`;
+  if(!S.profileReady||!S.ready){seg.hidden=true;vb.hidden=true;app.innerHTML='<div class="skel"></div><div class="skel"></div>';syncTop();return}
+  if(!S.profile){seg.hidden=true;vb.hidden=true;app.innerHTML='<div class="gate"><h1>Access not set up yet</h1><p>You are signed in, but no role has been assigned to this login. Ask Dries to check your account.</p></div>';syncTop();return}
+  seg.hidden=S.tabsAvail.length<2;
+  seg.innerHTML=S.tabsAvail.map(r=>`<button data-role="${r}" aria-pressed="${S.view===r}">${ROLE_LABEL[r]}${!S.set.has(r)?'<span class="pv">preview</span>':''}</button>`).join('');
+  vb.hidden=false;
+  $('#venues').innerHTML=[{id:'all',name:'All restaurants',loc:'Every venue',c:'var(--accent)'},...VENUES].map(v=>{const n=badgeFor(v.id);
+    return `<button class="vbtn" data-venue="${v.id}" aria-current="${S.venue===v.id}" title="${n} ${badgeTitle()}"><span class="dot" style="background:${v.c}"></span><span><span class="vn">${esc(v.name)}</span><span class="vl">${esc(v.loc)}</span></span><span class="badge ${n?'':'zero'}">${n}</span></button>`}).join('');
+  const body=S.view==='approver'?viewApprover():S.view==='finance'?viewFinance():viewUploader();
+  app.innerHTML=(preview()?`<div class="notice">Preview only. You are looking at the ${ROLE_FULL[S.view].toLowerCase()} view. Actions are switched off because this view belongs to another role.</div>`:'')+body;
+  syncTop();
+  if(S.openId&&!$('#overlay').hidden&&!$('#overlay .sheet form'))refreshDetail();
+}
+function refreshDetail(){const o=$('#overlay');if(o.querySelector('#rs,#wgo,#n-go,#pgo'))return;const sc=o.querySelector('.sheet')?.scrollTop||0;const id=S.openId;if(S.quotes.find(q=>q.id===id)){openDetail(id);const s=$('#overlay .sheet');if(s)s.scrollTop=sc}else closeModal()}
+function syncTop(){const t=$('#top');document.documentElement.style.setProperty('--topH',t.offsetHeight+'px')}
+window.addEventListener('resize',syncTop);
+
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target;
+  let el;
+  if(el=t.closest('[data-role]')){S.view=el.dataset.role;lsSet('cq-view',S.view);render();return}
+  if(el=t.closest('[data-venue]')){S.venue=el.dataset.venue;lsSet('cq-venue',S.venue);render();window.scrollTo({top:0,behavior:'smooth'});return}
+  if(el=t.closest('[data-tab]')){const[a,b]=el.dataset.tab.split(':');S.tab[a]=b;render();return}
+  if(el=t.closest('[data-act]')){
+    const a=el.dataset.act,id=el.dataset.id;
+    if(a==='signout')sb.auth.signOut();
+    else if(a==='password')openPassword();
+    else if(a==='new')openForm();
+    else if(a==='edit'){closeModal();openForm(id)}
+    else if(a==='team')openTeam();
+    else if(a==='export')exportCsv();
+    else if(a==='approve'){closeModal();approve(id)}
+    else if(a==='changes'||a==='reject'){closeModal();askReason(id,a==='reject'?'rejected':'changes')}
+    else if(a==='withdraw'){closeModal();askWithdraw(id)}
+    return;
+  }
+  if(el=t.closest('[data-open]'))openDetail(el.dataset.open);
+});
+
+
+/* ---------- boot ---------- */
+async function onSession(session){
+  if(!session){stopLive();S.user=null;S.profile=null;S.profileReady=false;S.quotes=[];S.ready=false;S.view=null;S.sig='';closeModal();render();return}
+  if(S.user&&S.user.id===session.user.id){S.user=session.user;return}
+  S.user=session.user;S.profile=null;S.profileReady=false;S.ready=false;S.view=null;render();
+  const {data:p}=await sb.from('profiles').select('*').eq('id',S.user.id).maybeSingle();
+  S.profile=p;S.profileReady=true;computeRoles();
+  if(!p){S.ready=true;render();return}
+  await load(true);startLive();
+}
+function boot(){
+  const sv=lsGet('cq-venue');if(sv&&(sv==='all'||VMAP[sv]))S.venue=sv;
+  const app=$('#app');
+  if(!window.supabase||!window.CONFIG||/YOUR-/.test(CONFIG.SUPABASE_URL+CONFIG.SUPABASE_ANON_KEY)){
+    app.innerHTML='<div class="gate"><h1>Setup needed</h1><p>Open config.js and paste your Supabase project URL and anon key.</p></div>';return;
+  }
+  sb=supabase.createClient(CONFIG.SUPABASE_URL,CONFIG.SUPABASE_ANON_KEY);
+  sb.auth.onAuthStateChange((ev,session)=>{setTimeout(()=>onSession(session),0)});
+}
+boot();
+
+</script>
+</body>
+</html>
