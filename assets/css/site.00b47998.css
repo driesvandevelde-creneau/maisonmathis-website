@@ -1398,3 +1398,6 @@ footer h2.foot-h { font-family: var(--display); font-size: 15px; letter-spacing:
 .hs-others .loc h3 a { text-decoration: none; color: inherit; }
 @media (max-width: 1040px) { .hs-visit-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 620px) { .hs-visit-grid { grid-template-columns: 1fr; gap: 22px; padding-top: 30px; padding-bottom: 32px; } }
+
+/* a house with many menus (Dubai South has five): the menu switch gets its own row in the reader's top bar */
+.reader-bar:has(.menu-switch .rbtn:nth-child(4):not([hidden])) .menu-switch { order: 9; flex: 1 0 100%; flex-wrap: wrap; }

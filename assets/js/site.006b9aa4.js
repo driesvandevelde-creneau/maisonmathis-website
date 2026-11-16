@@ -150,13 +150,39 @@
       "/assets/img/menu-emaar-nye-02.webp",
       "/assets/img/menu-emaar-nye-03.webp",
       "/assets/img/menu-emaar-nye-04.webp"
+    ],
+    "emaar-breakfast": [
+      "/assets/img/menu-emaar-breakfast-01.webp",
+      "/assets/img/menu-emaar-breakfast-02.webp",
+      "/assets/img/menu-emaar-breakfast-03.webp",
+      "/assets/img/menu-emaar-breakfast-04.webp"
+    ],
+    "emaar-lunch": [
+      "/assets/img/menu-emaar-lunch-01.webp",
+      "/assets/img/menu-emaar-lunch-02.webp",
+      "/assets/img/menu-emaar-lunch-03.webp",
+      "/assets/img/menu-emaar-lunch-04.webp",
+      "/assets/img/menu-emaar-lunch-05.webp",
+      "/assets/img/menu-emaar-lunch-06.webp",
+      "/assets/img/menu-emaar-lunch-07.webp",
+      "/assets/img/menu-emaar-lunch-08.webp",
+      "/assets/img/menu-emaar-lunch-09.webp"
+    ],
+    "emaar-drinks": [
+      "/assets/img/menu-emaar-drinks-01.webp",
+      "/assets/img/menu-emaar-drinks-02.webp",
+      "/assets/img/menu-emaar-drinks-03.webp",
+      "/assets/img/menu-emaar-drinks-04.webp",
+      "/assets/img/menu-emaar-drinks-05.webp",
+      "/assets/img/menu-emaar-drinks-06.webp",
+      "/assets/img/menu-emaar-drinks-07.webp"
     ]
   };
   /* the Arabian Ranches booklet carries its drinks list on pages 14-19 of the lunch & dinner scans */
   MENU_PAGES["ar-drinks"] = MENU_PAGES["ar-lunch"].slice(13, 19);
   var MENU_TITLES = { breakfast: "Breakfast", lunch: "Lunch & dinner", drinks: "Drinks", brunch: "Christmas Day Brunch", nye: "New Year\u2019s Eve" };
   var HOUSE_NAMES = { ar: "Arabian Ranches", palm: "voco The Palm", hasselt: "Hasselt", emaar: "Dubai South" };
-  var typeOf = { ar: "lunch", palm: "lunch", hasselt: "lunch", emaar: "brunch" };
+  var typeOf = { ar: "lunch", palm: "lunch", hasselt: "lunch", emaar: "lunch" };
   var spreadAt = {};
 
   function bookPages(loc) { return MENU_PAGES[loc + "-" + typeOf[loc]] || []; }
@@ -224,7 +250,7 @@
   document.querySelectorAll("[data-read]").forEach(function (b) {
     b.addEventListener("click", function () {
       var loc = b.getAttribute("data-read"), t = b.getAttribute("data-read-type");
-      if (t && MENU_PAGES[loc + "-" + t]) typeOf[loc] = t;      /* which menu this button opens */
+      if (t && MENU_PAGES[loc + "-" + t]) setType(loc, t);      /* which menu this button opens */
       openReader(loc, 0, b);
     });
   });
