@@ -1401,3 +1401,7 @@ footer h2.foot-h { font-family: var(--display); font-size: 15px; letter-spacing:
 
 /* a house with many menus (Dubai South has five): the menu switch gets its own row in the reader's top bar */
 .reader-bar:has(.menu-switch .rbtn:nth-child(4):not([hidden])) .menu-switch { order: 9; flex: 1 0 100%; flex-wrap: wrap; }
+
+/* ---------- voco The Palm: banner above the key dates ---------- */
+.ww-banner { padding: 26px 0 0; }
+.ww-banner .ww-photo { order: 0; }
